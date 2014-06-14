@@ -30,6 +30,7 @@ public final class Messages {
     public static enum Message {
 		NO_PERM(Clr.RED + "You do not have permission to do that"),
 		NOT_ONLINE(Clr.RED + "You must be in-game to use that"),
+		NEEDS_GROUP(Clr.RED + "You must specify a group!"),
 		GENERIC_ERROR(Clr.RED + "An error occurred. Please report this to an admin!");
 		private String msg;
 		Message(String msg) { this.msg = msg; }
@@ -48,7 +49,7 @@ public final class Messages {
 	 * @param msg The Message enum to send
 	 * @see Messages.Message
 	 */
-	public static void send(CommandSender sender, Message msg) { sender.sendMessage(""+msg); }
+	public static void send(CommandSender sender, Message msg) { sender.sendMessage("" + msg); }
 	/**
 	 * Sends a message to a player from the Message list
 	 * @param player The Player to send the message
