@@ -1,8 +1,6 @@
 package me.offluffy.carbonlib;
 
 import net.milkbowl.vault.permission.Permission;
-import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -17,9 +15,7 @@ public final class MiscUtils {
      * Sets the Permission object used for perm checking
      * @param p The Permission object provided by Vault
      */
-    public static void setPerms(Permission p) {
-        perms = p;
-    }
+    public static void setPerms(Permission p) { perms = p; }
     /**
      * Checks if the Player has any of the listed perms
      * @param player The Player to check
