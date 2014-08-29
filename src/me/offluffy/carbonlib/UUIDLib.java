@@ -11,7 +11,7 @@ import org.bukkit.entity.Player;
 /**
  * Conveneince method to handle UUIDS and store UUIDS with associated usernames
  */
-@SuppressWarnings("UnusedDeclaration")
+@SuppressWarnings({"UnusedDeclaration", "deprecation"})
 public final class UUIDLib {
 	private static HashBiMap<String, UUID> storedIds = HashBiMap.create();
 	/**

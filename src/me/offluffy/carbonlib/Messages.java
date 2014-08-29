@@ -1,6 +1,7 @@
 package me.offluffy.carbonlib;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -21,19 +22,27 @@ public final class Messages {
 		private String clr = "";
 		Clr(String chars) { init(chars.toCharArray()); }
 		Clr(char ... chars) { init(chars); }
-		public void init(char ... chars) { for (char c : chars) clr+="\u00A7"+c; }
+		public void init(char ... chars) { clr = fromChars(chars); }
 		public String toString() { return clr; }
+		public String s() { return clr; }
+		public static String fromChars(char ... chars) {
+			String clrs = "";
+			for (char c : chars)
+				clrs += "\u00A7"+c;
+			return clrs;
+		}
+		public static String fromChars(String chars) { return fromChars(chars.toCharArray()); }
 	}
 	/**
 	 * Common messages
 	 */
     public static enum Message {
-		NO_PERM(Clr.RED + "You do not have permission to do that"),
-		NOT_ONLINE(Clr.RED + "You must be in-game to use that"),
-		NEEDS_GROUP(Clr.RED + "You must specify a group!"),
-		GENERIC_ERROR(Clr.RED + "An error occurred. Please report this to an admin!");
+		NO_PERM("&4You do not have permission to do that"),
+		NOT_ONLINE("&4You must be in-game to use that"),
+		NEEDS_GROUP("&4You must specify a group!"),
+		GENERIC_ERROR("&4An error occurred. Please report this to an admin!");
 		private String msg;
-		Message(String msg) { this.msg = msg; }
+		Message(String message) { this.msg = ChatColor.translateAlternateColorCodes('&', message); }
 		public String toString() { return msg; }
 	}
 
@@ -131,9 +140,9 @@ public final class Messages {
 	 * @param msg The message to broadcast
 	 */
 	public static void permBroadcast(String perm, Message msg) {
-		for (Player p : Bukkit.getOnlinePlayers())
-			if (MiscUtils.perm(p, perm))
-				send(p, msg);
+		for (OfflinePlayer p : Bukkit.getOfflinePlayers())
+			if (p.isOnline() && MiscUtils.perm(((Player)p).getWorld(), p, perm))
+				send((Player)p, msg);
 	}
 	/**
 	 * Broadcasts a message to all online players with the given permission
@@ -141,9 +150,9 @@ public final class Messages {
 	 * @param msgKey The name of the stored custom message (NOT THE MESSAGE TO BE SENT)
 	 */
 	public static void permBroadcast(String perm, String msgKey) {
-		for (Player p : Bukkit.getOnlinePlayers())
-			if (MiscUtils.perm(p, perm))
-				send(p, msgKey);
+		for (OfflinePlayer p : Bukkit.getOfflinePlayers())
+			if (p.isOnline() && MiscUtils.perm(((Player)p).getWorld(), p, perm))
+				send((Player)p, msgKey);
 	}
 	/**
 	 * Broadcasts a message to all online players with the given permission
@@ -152,8 +161,8 @@ public final class Messages {
 	 * @param args Message formattings variables
 	 */
 	public static void permBroadcast(String perm, String msgKey, Object ... args) {
-		for (Player p : Bukkit.getOnlinePlayers())
-			if (MiscUtils.perm(p, perm))
-				send(p, msgKey, args);
+		for (OfflinePlayer p : Bukkit.getOfflinePlayers())
+			if (p.isOnline() && MiscUtils.perm(((Player)p).getWorld(), p, perm))
+				send((Player)p, msgKey, args);
 	}
 }
