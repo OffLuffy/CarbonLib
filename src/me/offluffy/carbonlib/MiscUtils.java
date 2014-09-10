@@ -7,7 +7,10 @@ import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Convenience class with several miscellaneous purposes
@@ -16,12 +19,16 @@ import java.util.HashMap;
 @SuppressWarnings({"ResultOfMethodCallIgnored", "UnusedDeclaration"})
 public final class MiscUtils {
     private static Permission perms;
-
     /**
      * Sets the Permission object used for perm checking
      * @param p The Permission object provided by Vault
      */
     public static void setPerms(Permission p) { perms = p; }
+	/**
+	 * Fetch the Permission object used for perm checking
+	 * @return Returns the cached Permission object
+	 */
+	public static Permission getPerms() { return perms; }
     /**
      * Checks if the Player has any of the listed perms
      * @param player The Player to check
@@ -55,10 +62,14 @@ public final class MiscUtils {
      * @return Returns true if the CommandSender has any of the perms
      */
     public static boolean perm(CommandSender sender, String ... permissions) {
-        for (String p : permissions)
-            if (perms != null)
-                if (perms.has(sender, p))
-                    return true;
+        for (String p : permissions) {
+			if (perms != null) {
+				if (perms.has(sender, p))
+					return true;
+			} else {
+				Log.severe("Permissions is null!");
+			}
+		}
         return false;
     }
 	/**
@@ -69,6 +80,17 @@ public final class MiscUtils {
 	public static void permBroadcast(String perm, String msg) {
 		for (Player p : Bukkit.getOnlinePlayers())
 			if (perm(p, perm))
+				p.sendMessage(msg);
+	}
+	/**
+	 * Broadcasts a message to all online players with the given permission
+	 * @param perm The permission node that players must have to view the message
+	 * @param avoid A List of &lt;? extends Player&gt; whom to not send the message to
+	 * @param msg The message to broadcast
+	 */
+	public static void permBroadcast(String perm, List<? extends Player> avoid, String msg) {
+		for (Player p : Bukkit.getOnlinePlayers())
+			if (perm(p, perm) && !avoid.contains(p))
 				p.sendMessage(msg);
 	}
     /**
@@ -86,6 +108,17 @@ public final class MiscUtils {
 		}
         return false;
     }
+
+	/**
+	 * Checks an Object's equality to a list of other Objects
+	 * @param obj The Object to compare
+	 * @param query An array of Objects to compare the obj against
+	 * @return Returns true if 'obj' is equal to any Object in the 'query' array
+	 */
+	public static <T> boolean objEq(T obj, T ... query) {
+		for (T q : query) { if (obj.equals(q)) { return true; } }
+		return false;
+	}
     /**
      * Check if a number is a valid Integer
      * @param query The query to check
@@ -112,6 +145,19 @@ public final class MiscUtils {
             return false;
         }
     }
+	/**
+	 * Check if a number is a valid Double
+	 * @param query The query to check
+	 * @return true if the query is capable of being casted to a double, false otherwise
+	 */
+	public static boolean isDouble(String query) {
+		try {
+			Double.parseDouble(query);
+			return true;
+		} catch (Exception e) {
+			return false;
+		}
+	}
     /**
      * Check if a number is a valid Boolean
      * @param query The query to check
@@ -187,7 +233,7 @@ public final class MiscUtils {
 	}
 
 	/**
-	 * Short-hand method of forming a HashMap&lt;String, String&gt; for an array of strings (every other string being a key, the string after being the value)
+	 * Short-hand method of forming a HashMap&lt;String, String&gt; from an array of strings (every other string being a key, the string after being the value)
 	 * @param st The array of Strings to form into a HashMap&lt;String, String&gt;
 	 * @return Returns a HashMap&lt;String, String&gt; filled with the given Strings
 	 */
@@ -198,4 +244,22 @@ public final class MiscUtils {
 				ret.put(st[i], st[i+1]);
 		return ret;
 	}
+
+	/**
+	 * Short-hand method of forming a List&lt;?&gt; from an array of items
+	 * @param stuff The items being translated into a List
+	 * @return Returns a List of the specifiec objects
+	 */
+	public static <T> List<T> quickList(T ... stuff) {
+		List<T> ret = new ArrayList<T>();
+		Collections.addAll(ret, stuff);
+		return ret;
+	}
+	/**
+	 * Generates a random number
+	 * @param min The lowest number allowed
+	 * @param max The highest number allowed
+	 * @return Returns a random int between the specified boundaries, inclusive
+	 */
+	public static int rand(int min, int max) { return min + (int)(Math.random() * ((max - min) + 1)); }
 }

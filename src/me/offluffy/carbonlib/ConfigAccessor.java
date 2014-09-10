@@ -11,13 +11,10 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 @SuppressWarnings({"UnusedDeclaration", "deprecation"})
 public final class ConfigAccessor {
-
 	private final String fileName;
 	private final JavaPlugin plugin;
-
 	private File configFile;
 	private FileConfiguration fileConfiguration;
-
 	/**
 	 * Convenience object to assist with handling FileConfigurations other than the plugin's primary config file
 	 * @param plugin The JavaPlugin using the ConfigAccessor
@@ -28,12 +25,13 @@ public final class ConfigAccessor {
 			throw new CarbonException("Plugin cannot be null");
 		if (!plugin.isInitialized())
 			throw new CarbonException("Plugin must be initialized");
+		if (plugin.getDataFolder() == null)
+			throw new IllegalStateException();
 		this.plugin = plugin;
 		this.fileName = fileName;
-		File dataFolder = plugin.getDataFolder();
-		if (dataFolder == null)
-			throw new IllegalStateException();
 		this.configFile = new File(plugin.getDataFolder(), fileName);
+		saveDefaultConfig();
+		reloadConfig();
 	}
 
 	/**
@@ -48,12 +46,12 @@ public final class ConfigAccessor {
 			throw new CarbonException("Plugin must be initialized");
 		this.plugin = plugin;
 		this.fileName = file.getName();
-		File dataFolder = plugin.getDataFolder();
-		if (dataFolder == null)
+		if (plugin.getDataFolder() == null)
 			throw new IllegalStateException();
 		this.configFile = file;
+		saveDefaultConfig();
+		reloadConfig();
 	}
-
 	/**
 	 * Attempts to reload the FileConfiguration object associated with this instance of ConfigAccessor
 	 * @see FileConfiguration
@@ -62,16 +60,14 @@ public final class ConfigAccessor {
 		if (exists())
 			fileConfiguration = YamlConfiguration.loadConfiguration(configFile);
 		else {
+			fileConfiguration = new YamlConfiguration();
 			InputStream defConfigStream = plugin.getResource(fileName);
 			if (defConfigStream != null) {
 				YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(defConfigStream);
 				fileConfiguration.setDefaults(defConfig);
-			} else {
-				fileConfiguration = new YamlConfiguration();
 			}
 		}
 	}
-
 	/**
 	 * Returns the FileConfiguration object associated with this instance of ConfigAccessor
 	 * @return A FileConfiguration object stored in this object
@@ -82,7 +78,6 @@ public final class ConfigAccessor {
 			this.reloadConfig();
 		return fileConfiguration;
 	}
-
 	/**
 	 * Saves the current working config to the destination file
 	 */
@@ -93,18 +88,17 @@ public final class ConfigAccessor {
 			} catch (IOException ex) {
 				plugin.getLogger().log(Level.SEVERE, "Could not saveInvConfig config to " + configFile, ex);
 			}
+		} else {
+			if (fileConfiguration == null)
+				System.out.println("FileConfiguration object is null for " + fileName);
+			if (configFile == null)
+				System.out.println("Config file object is null for " + fileName);
 		}
 	}
-
 	/**
-	 * Saves a default copy of from the plugin jar to the destination file
+	 * Saves a default copy of the file from the plugin jar to the destination file
 	 */
-	public void saveDefaultConfig() {
-		if (!configFile.exists()) {
-			this.plugin.saveResource(fileName, false);
-		}
-	}
-
+	public void saveDefaultConfig() { if (!exists()) this.plugin.saveResource(fileName, false); }
 	/**
 	 * Indicates whether or not the config's destination file exists
 	 * @return true if the destination file exists, false otherwise
