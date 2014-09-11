@@ -108,6 +108,13 @@ public final class MiscUtils {
 		}
         return false;
     }
+	/**
+	 * Checks a String query against a list of Strings
+	 * @param query The string to check
+	 * @param matches The list of Strings to check the query against
+	 * @return Returns true if the query matches any String from matches (case-insensitive)
+	 */
+	public static boolean eq(String query, List<String> matches) { return eq(query, matches.toArray(new String[matches.size()])); }
 
 	/**
 	 * Checks an Object's equality to a list of other Objects
@@ -164,14 +171,9 @@ public final class MiscUtils {
      * @return true if the query is capable of being casted to a boolean, false otherwise
      */
     public static boolean isBoolean(String query) {
-        try {
-            Boolean.parseBoolean(query);
-            return true;
-        } catch (Exception e) {
-            return isInteger(query) && Integer.parseInt(query) > 0 ||
-                    eq(query, "on", "off", "1", "0", "true", "false", "enabled", "disabled", "enable", "disable",
-							"allow", "deny", "yes", "no", "y", "n", "agree", "disagree");
-        }
+		return (isInteger(query) && Integer.parseInt(query) > 0) ||
+				eq(query, "on", "off", "1", "0", "true", "false", "enabled", "disabled", "enable", "disable",
+						"allow", "deny", "yes", "no", "y", "n", "agree", "disagree");
     }
     /**
      * Parses a boolean more generously than Java's Boolean.toBoolean() method
