@@ -2,10 +2,13 @@ package me.offluffy.carbonlib;
 
 import net.milkbowl.vault.permission.Permission;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -264,4 +267,63 @@ public final class MiscUtils {
 	 * @return Returns a random int between the specified boundaries, inclusive
 	 */
 	public static int rand(int min, int max) { return min + (int)(Math.random() * ((max - min) + 1)); }
+	/**
+	 * Attempts to parse a material name or number to a Material. Can use Essentials's item aliases if it's installed
+	 * @param mat The name or number to search for
+	 * @return Returns a Material object if found, null otherwise
+	 */
+	@SuppressWarnings("deprecation")
+	public static Material getMaterial(String mat) {
+		if (MiscUtils.isInteger(mat)) {
+			return Material.getMaterial(Integer.parseInt(mat));
+		} else {
+			if (Material.getMaterial(mat) != null)
+				return Material.getMaterial(mat);
+			if (Material.getMaterial(mat.toUpperCase()) != null)
+				return Material.getMaterial(mat.toUpperCase());
+			if (Material.getMaterial(mat.replace(" ", "_")) != null)
+				return Material.getMaterial(mat.replace(" ", "_"));
+		}
+		if (checkPlugin("Essentials", true)) {
+			com.earth2me.essentials.Essentials ess = (com.earth2me.essentials.Essentials) getPlugin("Essentials", true);
+			try { return ess.getItemDb().get(mat).getType(); } catch (Exception e) { return null; }
+		}
+		return null;
+	}
+
+	/**
+	 * Attempts to parse a enchantment name or number to an Enchantment. Can use Essentials's enchant aliases if it's initialized
+	 * @param ench The name or number to search for
+	 * @return Returns an Enchantment object if found, null otherwise
+	 */
+	@SuppressWarnings("deprecation")
+	public static Enchantment getEnchant(String ench) {
+		if (Enchantment.getByName(ench.toUpperCase()) != null) return Enchantment.getByName(ench);
+		if (isInteger(ench) && Enchantment.getById(Integer.parseInt(ench)) != null) return Enchantment.getById(Integer.parseInt(ench));
+		if (checkPlugin("Essentials", true)) { try { return com.earth2me.essentials.Enchantments.getByName(ench); } catch (Exception e) { return null; } }
+		return null;
+	}
+	/**
+	 * Checks if a plugin is installed and enabled
+	 * @param pluginName The name of the plugin to check
+	 * @return Returns true if the plugin is found and enabled, false otherwse
+	 */
+	public static boolean checkPlugin(String pluginName, boolean requireEnabled) {
+		if (Bukkit.getPluginManager().getPlugin(pluginName) != null)
+			if (!requireEnabled || Bukkit.getPluginManager().isPluginEnabled(pluginName))
+				return true;
+		return false;
+	}
+	/**
+	 * Attempts to fetch the plugin if it's installed and enabled
+	 * @param pluginName The name of the plugin to check
+	 * @param requireEnabled Whether to require the plugin to be enabled to return the Plugin
+	 * @return Returns the Plugin if the plugin is installed and enabled, null otherwise
+	 */
+	public static Plugin getPlugin(String pluginName, boolean requireEnabled) {
+		if (Bukkit.getPluginManager().getPlugin(pluginName) != null)
+			if (!requireEnabled || Bukkit.getPluginManager().isPluginEnabled(pluginName))
+				return Bukkit.getPluginManager().getPlugin(pluginName);
+		return null;
+	}
 }
