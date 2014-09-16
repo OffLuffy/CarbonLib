@@ -8,12 +8,10 @@ import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Recipe;
 import org.bukkit.plugin.Plugin;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 /**
  * Convenience class with several miscellaneous purposes
@@ -325,5 +323,17 @@ public final class MiscUtils {
 			if (!requireEnabled || Bukkit.getPluginManager().isPluginEnabled(pluginName))
 				return Bukkit.getPluginManager().getPlugin(pluginName);
 		return null;
+	}
+	/**
+	 * Attempts to remove a recipe
+	 * @param r The Recipe to remove
+	 */
+	public static void removeRecipe(Recipe r) {
+		Iterator<Recipe> it = Bukkit.recipeIterator();
+		while (it.hasNext()) {
+			Recipe itr = it.next();
+			if (itr != null && itr.equals(r))
+				it.remove();
+		}
 	}
 }
