@@ -1,6 +1,7 @@
 package me.offluffy.carbonlib;
 
 import net.milkbowl.vault.permission.Permission;
+import net.minecraft.server.v1_7_R4.CraftingManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -329,10 +330,18 @@ public final class MiscUtils {
 	 * @param r The Recipe to remove
 	 */
 	public static void removeRecipe(Recipe r) {
+		if (CraftingManager.getInstance().getRecipes().contains(r))
+			CraftingManager.getInstance().getRecipes().remove(r);
+	}
+	/**
+	 * Attempts to remove a list of recipes
+	 * @param r The List of Recipes to remove
+	 */
+	public static void removeRecipes(List<Recipe> r) {
 		Iterator<Recipe> it = Bukkit.recipeIterator();
 		while (it.hasNext()) {
 			Recipe itr = it.next();
-			if (itr != null && itr.equals(r))
+			if (itr != null && r.contains(itr))
 				it.remove();
 		}
 	}
