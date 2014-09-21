@@ -345,4 +345,17 @@ public final class MiscUtils {
 				it.remove();
 		}
 	}
+
+	/**
+	 * Remaps a value in a range to an equivilent value in another range.
+	 * @param oldMin The minimum value of the old range
+	 * @param oldMax The maximum value of the old range
+	 * @param newMin The minimum value of the new range
+	 * @param newMax The maximum value of the new range
+	 * @param value The value in the old range to be remapped to the new range
+	 * @return Returns a double of the old value's equivilent value in the new range
+	 */
+	public static double remapValue(double oldMin, double oldMax, double newMin, double newMax, double value) {
+		return (((value - oldMin) * (newMax - newMin)) / (oldMax - oldMin)) + newMin;
+	}
 }
