@@ -1,4 +1,4 @@
-package me.offluffy.carbonlib;
+package org.teamcarbon.carbonlib;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -52,7 +52,7 @@ public final class CarbonException extends RuntimeException {
 
 	/**
 	 * Sets the scope which dictates which lines are printed from an exception
-	 * @param scope The scope to restrict output to (i.e. me.offluffy)
+	 * @param scope The scope to restrict output to (i.e. me.teamcarbon)
 	 */
 	public static void setGlobalScope(String scope) {
 		globalScopeSet = true;

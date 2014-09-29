@@ -1,4 +1,4 @@
-package me.offluffy.carbonlib;
+package org.teamcarbon.carbonlib;
 
 import com.google.common.collect.ImmutableList;
 import org.json.simple.JSONObject;

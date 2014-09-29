@@ -1,4 +1,4 @@
-package me.offluffy.carbonlib;
+package org.teamcarbon.carbonlib;
 
 import net.milkbowl.vault.permission.Permission;
 import net.minecraft.server.v1_7_R4.CraftingManager;

@@ -1,4 +1,4 @@
-package me.offluffy.carbonlib;
+package org.teamcarbon.carbonlib;
 
 import java.io.File;
 import java.io.IOException;
