@@ -1,4 +1,4 @@
-package org.teamcarbon.carbonlib;
+package net.teamcarbon.carbonlib.UUIDUtils;
 
 import com.google.common.collect.ImmutableList;
 import org.json.simple.JSONObject;

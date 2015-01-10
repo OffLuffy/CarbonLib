@@ -1,9 +1,9 @@
-package org.teamcarbon.carbonlib;
+package net.teamcarbon.carbonlib.UUIDUtils;
 
 import java.util.*;
 
-import com.google.common.collect.HashBiMap;
-
+import net.teamcarbon.carbonlib.CarbonException;
+import net.teamcarbon.carbonlib.Log;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -13,14 +13,17 @@ import org.bukkit.entity.Player;
  */
 @SuppressWarnings({"UnusedDeclaration", "deprecation"})
 public final class UUIDLib {
-	private static HashBiMap<String, UUID> storedIds = HashBiMap.create();
+	private static HashMap<String, UUID> storedIds = new HashMap<String, UUID>();
 	/**
 	 * Stores the given id and player name
 	 * @param pl The player name associated with the id
 	 * @param id The id associated with the player name
 	 */
 	public static void store(String pl, UUID id) {
-		// TODO Remove duplicate values/keys
+		if (storedIds.containsValue(id))
+			for (String p : (new HashMap<String, UUID>(storedIds)).keySet())
+				if (storedIds.get(p).equals(id))
+					storedIds.remove(p);
 		storedIds.put(pl, id);
 	}
 	/**
@@ -73,7 +76,9 @@ public final class UUIDLib {
 	 */
 	public static String nameFromID(UUID id) {
 		if (storedIds.containsValue(id))
-			return storedIds.inverse().get(id);
+			for (String p : (new HashMap<String, UUID>(storedIds)).keySet())
+				if (storedIds.get(p).equals(id))
+					return p;
 		for (Player pl : Bukkit.getOnlinePlayers())
 			if (pl.getUniqueId().equals(id))
 				return pl.getName();

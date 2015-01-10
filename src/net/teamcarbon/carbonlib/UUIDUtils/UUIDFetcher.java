@@ -1,4 +1,4 @@
-package org.teamcarbon.carbonlib;
+package net.teamcarbon.carbonlib.UUIDUtils;
 
 import com.google.common.collect.ImmutableList;
 import org.json.simple.JSONArray;
@@ -57,7 +57,7 @@ public final class UUIDFetcher implements Callable<Map<String, UUID>> {
 		URL url = new URL(PROFILE_URL);
 		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 		connection.setRequestMethod("POST");
-		connection.setRequestProperty("Content-Type", "application/json");
+		connection.setRequestProperty("Content-Type", "application/org.json");
 		connection.setUseCaches(false);
 		connection.setDoInput(true);
 		connection.setDoOutput(true);

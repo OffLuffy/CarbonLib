@@ -1,4 +1,4 @@
-package org.teamcarbon.carbonlib;
+package net.teamcarbon.carbonlib;
 
 import java.util.ArrayList;
 import java.util.Collections;

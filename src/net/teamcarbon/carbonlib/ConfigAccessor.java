@@ -1,4 +1,4 @@
-package org.teamcarbon.carbonlib;
+package net.teamcarbon.carbonlib;
 
 import java.io.File;
 import java.io.IOException;

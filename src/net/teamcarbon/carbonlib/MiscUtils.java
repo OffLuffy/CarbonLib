@@ -1,13 +1,11 @@
-package org.teamcarbon.carbonlib;
+package net.teamcarbon.carbonlib;
 
 import net.milkbowl.vault.permission.Permission;
-import net.minecraft.server.v1_7_R4.CraftingManager;
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Recipe;
 import org.bukkit.plugin.Plugin;
@@ -39,7 +37,7 @@ public final class MiscUtils {
      */
     public static boolean perm(Player player, String ... permissions) {
         for (String p : permissions)
-            if (perms != null)
+            if (perms != null && player != null && p != null)
                 if (perms.playerHas(player, p))
                     return true;
         return false;
@@ -52,7 +50,7 @@ public final class MiscUtils {
 	 */
 	public static boolean perm(World w, OfflinePlayer player, String ... permissions) {
 		for (String p : permissions)
-			if (perms != null)
+			if (perms != null && player != null && p != null)
 				if (perms.playerHas(w.getName(), player, p))
 					return true;
 		return false;
@@ -65,7 +63,7 @@ public final class MiscUtils {
      */
     public static boolean perm(CommandSender sender, String ... permissions) {
         for (String p : permissions) {
-			if (perms != null) {
+			if (perms != null && sender != null && p != null) {
 				if (perms.has(sender, p))
 					return true;
 			} else {
@@ -117,7 +115,6 @@ public final class MiscUtils {
 	 * @return Returns true if the query matches any String from matches (case-insensitive)
 	 */
 	public static boolean eq(String query, List<String> matches) { return eq(query, matches.toArray(new String[matches.size()])); }
-
 	/**
 	 * Checks an Object's equality to a list of other Objects
 	 * @param obj The Object to compare
@@ -235,7 +232,6 @@ public final class MiscUtils {
 					subject = subject.replace(s, rep.get(s));
 		return subject;
 	}
-
 	/**
 	 * Short-hand method of forming a HashMap&lt;String, String&gt; from an array of strings (every other string being a key, the string after being the value)
 	 * @param st The array of Strings to form into a HashMap&lt;String, String&gt;
@@ -248,7 +244,6 @@ public final class MiscUtils {
 				ret.put(st[i], st[i+1]);
 		return ret;
 	}
-
 	/**
 	 * Short-hand method of forming a List&lt;?&gt; from an array of items
 	 * @param stuff The items being translated into a List
@@ -289,7 +284,6 @@ public final class MiscUtils {
 		}
 		return null;
 	}
-
 	/**
 	 * Attempts to parse a enchantment name or number to an Enchantment. Can use Essentials's enchant aliases if it's initialized
 	 * @param ench The name or number to search for
@@ -325,27 +319,26 @@ public final class MiscUtils {
 				return Bukkit.getPluginManager().getPlugin(pluginName);
 		return null;
 	}
-	/**
+	/*/**
 	 * Attempts to remove a recipe
 	 * @param r The Recipe to remove
 	 */
-	public static void removeRecipe(Recipe r) {
+	/*public static void removeRecipe(Recipe r) {
 		if (CraftingManager.getInstance().getRecipes().contains(r))
 			CraftingManager.getInstance().getRecipes().remove(r);
-	}
-	/**
-	 * Attempts to remove a list of recipes
+	}*/
+	/*/**
+	 * Attempts to remove a list of recipes <i>This doesn't work yet</i>
 	 * @param r The List of Recipes to remove
 	 */
-	public static void removeRecipes(List<Recipe> r) {
+	/*public static void removeRecipes(List<Recipe> r) {
 		Iterator<Recipe> it = Bukkit.recipeIterator();
 		while (it.hasNext()) {
 			Recipe itr = it.next();
 			if (itr != null && r.contains(itr))
 				it.remove();
 		}
-	}
-
+	}*/
 	/**
 	 * Remaps a value in a range to an equivilent value in another range.
 	 * @param oldMin The minimum value of the old range
@@ -357,5 +350,92 @@ public final class MiscUtils {
 	 */
 	public static double remapValue(double oldMin, double oldMax, double newMin, double newMax, double value) {
 		return (((value - oldMin) * (newMax - newMin)) / (oldMax - oldMin)) + newMin;
+	}
+	/**
+	 * Attempts to fetch an OfflinePlayer based on a String name or UUID
+	 * @param query The username or UUID to search for
+	 * @return Returns an OfflinePlayer if found, false otherwise
+	 */
+	public static OfflinePlayer getOfflinePlayer(String query) {
+		for (Player p : Bukkit.getOnlinePlayers()) {
+			try {
+				if (p.getName().equalsIgnoreCase(query) || p.getUniqueId().equals(UUID.fromString(query)))
+					return p;
+			} catch (Exception e) { /*(new CarbonException(e)).printStackTrace();*/ }
+		}
+		for (OfflinePlayer p : Bukkit.getOfflinePlayers()) {
+			try {
+				if (p.getName().equalsIgnoreCase(query) || p.getUniqueId().equals(UUID.fromString(query)))
+					return p;
+			} catch (Exception e) { /*(new CarbonException(e)).printStackTrace();*/ }
+		}
+		return null;
+	}
+	/**
+	 * Teleports an Entity to a Location while maintaining passengers and pre-loads chunks
+	 * @param ent The Entity to teleport
+	 * @param loc The Location to teleport the entity to
+	 */
+	public static void teleport(Entity ent, Location loc) {
+		if (ent.isDead()) return;
+		final List<Entity> passengers = new ArrayList<Entity>();
+		loadChunks(loc, 3);
+		if (ent.getPassenger() != null) {
+			Entity v = ent;
+			while (v.getPassenger() != null) {
+				passengers.add(v.getPassenger());
+				v = v.getPassenger();
+				v.eject();
+			}
+		}
+		if (ent.isInsideVehicle()) ent.getVehicle().eject();
+		ent.teleport(loc);
+		if (!passengers.isEmpty()) {
+			Entity last = ent;
+			for (Entity e : passengers) {
+				if (e == null) continue;
+				e.teleport(loc);
+				last.setPassenger(e);
+				last = e;
+			}
+		}
+	}
+	/**
+	 * Loads chunks in the given radius around the given Location
+	 * @param location The Location around which to load chunks
+	 * @param radius The radius around the Location in which to load chunks
+	 */
+	public static void loadChunks(Location location, final int radius) {
+		for (int cx = (int)(location.getX() / 16.0) - radius; cx <= (int)(location.getX() / 16.0) + radius; cx++) {
+			for (int cz = (int)(location.getZ() / 16.0) - radius; cz <= (int)(location.getZ() / 16.0) + radius; cz++) {
+				location.getWorld().getChunkAt(cx, cz);
+			}
+		}
+	}
+	/**
+	 * Attempts to add a String to a String list in a FileConfiguration (Doesn't save the file!)
+	 * @param fc The FileConfiguration to modify
+	 * @param path The path to the String list
+	 * @param value The value to add to the String list (Uses Object's toString() method)
+	 */
+	public static boolean addToStringList(FileConfiguration fc, String path, Object value) {
+		boolean added = false;
+		List<String> list = fc.contains(path)?fc.getStringList(path):new ArrayList<String>();
+		if (!list.contains(value.toString())) { list.add(value.toString()); added = true; }
+		fc.set(path, list);
+		return added;
+	}
+	/**
+	 * Attempts to remove a String to a String list in a FileConfiguration (Doesn't save the file!)
+	 * @param fc The FileConfiguration to modify
+	 * @param path The path to the String list
+	 * @param value The value to remove from the String list (Uses Object's toString() method)
+	 */
+	public static boolean removeFromStringList(FileConfiguration fc, String path, Object value) {
+		boolean removed = false;
+		List<String> list = fc.contains(path)?fc.getStringList(path):new ArrayList<String>();
+		if (list.contains(value.toString())) { list.remove(value.toString()); removed = true; }
+		fc.set(path, list);
+		return removed;
 	}
 }
