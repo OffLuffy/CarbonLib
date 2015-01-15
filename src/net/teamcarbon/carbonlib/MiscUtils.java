@@ -44,6 +44,7 @@ public final class MiscUtils {
     }
 	/**
 	 * Checks if the Player has any of the listed perms
+	 * @param w The World to check permissions in
 	 * @param player The Player to check
 	 * @param permissions The list of perms to check
 	 * @return Returns true if the player has any of the perms
@@ -54,6 +55,16 @@ public final class MiscUtils {
 				if (perms.playerHas(w.getName(), player, p))
 					return true;
 		return false;
+	}
+	/**
+	 * Checks if the Player has any of the listed perms, assuming the default world if the player isn't online
+	 * @param player The Player to check
+	 * @param permissions The list of perms to check
+	 * @return Returns true if the player has any of the perms, false if not or if the World is somehow null
+	 */
+	public static boolean perm(OfflinePlayer player, String ... permissions) {
+		World w = (player.isOnline() ? ((Player) player).getWorld() : Bukkit.getWorlds().get(0));
+		return w != null && perm(w, player, permissions);
 	}
     /**
      * Checks if the CommandSender has any of the listed perms
@@ -93,6 +104,20 @@ public final class MiscUtils {
 			if (perm(p, perm) && !avoid.contains(p))
 				p.sendMessage(msg);
 	}
+	/**
+	 * Sends a message to the specified Player if they have the specified permission
+	 * @param pl The Player to send the message to if they have permission
+	 * @param msg The Message to send to the Player if they have permission
+	 * @param perm The permission node to check before sending the message
+	 */
+	public static void permSend(Player pl, String perm, String msg) { if (perm(pl, perm)) pl.sendMessage(msg); }
+	/**
+	 * Sends a message to the specified CommandSender if they have the specified permission
+	 * @param s The CommandSender to send the message to if they have permission
+	 * @param msg The Message to send to the CommandSender if they have permission
+	 * @param perm The permission node to check before sending the message
+	 */
+	public static void permSend(CommandSender s, String perm, String msg) { if (perm(s, perm)) s.sendMessage(msg); }
     /**
      * Checks a String query against a list of Strings
      * @param query The string to check
@@ -115,6 +140,14 @@ public final class MiscUtils {
 	 * @return Returns true if the query matches any String from matches (case-insensitive)
 	 */
 	public static boolean eq(String query, List<String> matches) { return eq(query, matches.toArray(new String[matches.size()])); }
+
+	/**
+	 * Checks if the query starts with any of the provided Strings in matches (case-insensitive)
+	 * @param query The String to check
+	 * @param matches The Strings to check if 'query' starts with
+	 * @return Returns true if query starts with (case-insensitive) any of the matches, false otherwise
+	 */
+	public static boolean starts(String query, String ... matches) { for (String s : matches) if (query.toLowerCase().startsWith(s.toLowerCase())) return true; return false; }
 	/**
 	 * Checks an Object's equality to a list of other Objects
 	 * @param obj The Object to compare
@@ -437,5 +470,70 @@ public final class MiscUtils {
 		if (list.contains(value.toString())) { list.remove(value.toString()); removed = true; }
 		fc.set(path, list);
 		return removed;
+	}
+
+	/**
+	 * Attempts to parse out each color/format code individually based on the permissions of the user
+	 * @param msg The message to parse colors in
+	 * @param p The Player whose permissions will be checked
+	 * @param perm The permission node that will be appended with specific nodes like .color.red or .format.bold
+	 * @return Returns the message that's parsed, doesn't parse codes the user doesn't have permission for
+	 */
+	public static String permColorParse(String msg, Player p, String perm) {
+		// Add the trailing dot if there isn't one (since I'll be adding code-specific perm nodes on later)
+		if (!perm.endsWith(".")) perm += ".";
+		// If they have all perms, replace everything and return it
+		if (perm(p, perm+"color.*") && perm(p, perm+"format.*")) return ChatColor.translateAlternateColorCodes('&', msg);
+		// Otherwise loop through each code and check for individual codes
+		for (ChatColor cc : ChatColor.values()) {
+			// If a color code, check if user has perm to change all colors, if not then check color.colorname
+			if (cc.isColor() && (perm(p, perm+"color.*") || perm(p, perm+"color."+cc.name().toLowerCase())))
+				msg = msg.replaceAll("&"+cc.getChar(), "\u00A7"+cc.getChar());
+			// If a format code, check if user has perm to change all formats, if not then check format.formatname
+			if (cc.isFormat() && (perm(p, perm+"format.*") || perm(p, perm+"format."+cc.name().toLowerCase())))
+				msg = msg.replaceAll("&"+cc.getChar(), "\u00A7"+cc.getChar());
+		}
+		return msg;
+	}
+
+	/**
+	 * Concatenates the array of Strings togther with the specified delimiter between each String.
+	 * This method will use Strings from the array from index 'fromIndex' to index 'toIndex'
+	 * @param array The array of Strings to concatenate together
+	 * @param delimiter The String to place between each String that's combined
+	 * @param fromIndex The index of the array to start from (inclusive)
+	 * @param toIndex The index of the array to end (inclusive)
+	 * @return Returns the concatenated Strings as a single String. Returns an empty string if array is null
+	 */
+	public static String stringFromArray(String[] array, String delimiter, int fromIndex, int toIndex) {
+		if (array == null) return "";
+		if (fromIndex < 0) { fromIndex = 0; }
+		if (toIndex > array.length-1) { toIndex = array.length-1; }
+		String newString = array[fromIndex];
+		for (int i = fromIndex+1; i <= toIndex; i++) { newString += delimiter + ((array[i]==null)?"":array[i]); }
+		return newString;
+	}
+
+	/**
+	 * Concatenates the array of Strings togther with the specified delimiter between each String.
+	 * This method will use String froms the array from index 'fromIndex' to the end of the array
+	 * @param array The array of Strings to concatenate together
+	 * @param delimiter The String to place between each String that's combined
+	 * @param fromIndex The index of the array to start from (inclusive)
+	 * @return Returns the concatenated Strings as a single String. Returns an empty string if array is null
+	 */
+	public static String stringFromArray(String[] array, String delimiter, int fromIndex) {
+		return stringFromArray(array, delimiter, fromIndex, array.length-1);
+	}
+
+	/**
+	 * Concatenates the array of Strings togther with the specified delimiter between each String.
+	 * This method will use all the Strings from the array
+	 * @param array The array of Strings to concatenate together
+	 * @param delimiter The String to place between each String that's combined
+	 * @return Returns the concatenated Strings as a single String. Returns an empty string if array is null
+	 */
+	public static String stringFromArray(String[] array, String delimiter) {
+		return stringFromArray(array, delimiter, 0, array.length-1);
 	}
 }
