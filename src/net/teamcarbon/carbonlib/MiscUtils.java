@@ -558,4 +558,17 @@ public final class MiscUtils {
 	public static String stringFromArray(String delimiter, String ... array) {
 		return stringFromArray(delimiter, 0, array.length-1, array);
 	}
+	/**
+	 * Converts a List&lt;T&gt; to an array of type T
+	 * @param list The List object to convert
+	 * @param <T> The object type
+	 * @return Returns an array of the specified objects from the List
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T> T[] arrayFromList(List<T> list) {
+		T[] a = (T[])new Object[list.size()];
+		for (int i = 0; i < list.size(); i++)
+			a[i] = list.get(i);
+		return a;
+	}
 }
