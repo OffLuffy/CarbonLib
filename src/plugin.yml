@@ -1,0 +1,7 @@
+name: CarbonLib
+version: 0.1
+description: Plugin Library Designed for Minecraft Team-Carbon
+author: OffLuffy
+depend: [Vault]
+soft-depend: [Essentials]
+main: net.teamcarbon.carbonlib.CarbonLib

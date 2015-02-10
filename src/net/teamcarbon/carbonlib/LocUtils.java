@@ -32,7 +32,7 @@ public final class LocUtils {
 	}
 
 	/**
-	 * Checks to see if the two Locations specified have the same coordinates (including decimals)
+	 * Checks to see if the two Locations specified have the same XYZ coordinates (including decimals)
 	 * @param l1 The first Location to compare against the second
 	 * @param l2 The second Location to compare against the first
 	 * @return Returns true if the World, x, y, and z locations are exactly the same between both Locations
@@ -43,7 +43,7 @@ public final class LocUtils {
 	}
 
 	/**
-	 * Checks to see if the two Locations specified have the same block coordinates (truncates decimals)
+	 * Checks to see if the two Locations specified have the same XYZ block coordinates (truncates decimals)
 	 * @param l1 The first Location to comapre against the second
 	 * @param l2 The second Location to compare against the first
 	 * @return Return strue if the World, x, y, and z block locations are the same
@@ -84,7 +84,7 @@ public final class LocUtils {
 		World w = loc!=null?loc.getWorld():null;
 		if (w == null) { try { w = Bukkit.getWorlds().get(0); } catch (Exception e) {} }
 		if (w == null) {
-			Log.warn("Failed to format Location! There doesn't appear to be any worlds on this server");
+			CarbonLib.log.warn("Failed to format Location! There doesn't appear to be any worlds on this server");
 			return null;
 		}
 		double x = 0, y = 64, z = 0;
@@ -95,7 +95,7 @@ public final class LocUtils {
 			z = blockCoords?loc.getBlockX():loc.getZ();
 			yaw = loc.getYaw();
 			pitch = loc.getPitch();
-		} else { Log.debug("Location being formattec is null. Using default values."); }
+		} else { CarbonLib.log.debug("Location being formattec is null. Using default values."); }
 		return w.getName() + "," + x + "," + y + "," + z + "," + yaw + "," + pitch;
 	}
 
@@ -110,7 +110,7 @@ public final class LocUtils {
 		World w = Bukkit.getWorld(s[0]);
 		if (w == null) { try { w = Bukkit.getWorlds().get(0); } catch (Exception e) {} }
 		if (w == null) {
-			Log.warn("Failed to parse Location! There doesn't appear to be any worlds on this server");
+			CarbonLib.log.warn("Failed to parse Location! There doesn't appear to be any worlds on this server");
 			return null;
 		}
 		double x = 0, y = 64, z = 0;

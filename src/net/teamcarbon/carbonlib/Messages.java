@@ -113,7 +113,7 @@ public final class Messages {
 			if (customMessages.containsKey(msgKey))
 				sender.sendMessage(String.format(Locale.ENGLISH, customMessages.get(msgKey), args));
 		} catch(Exception e) {
-			Log.warn("Error formatting string when sending message with key: " + msgKey);
+			CarbonLib.log.warn("Error formatting string when sending message with key: " + msgKey);
 		}
 	}
 	/**
@@ -127,7 +127,7 @@ public final class Messages {
 			if (customMessages.containsKey(msgKey))
 				player.sendMessage(String.format(Locale.ENGLISH, customMessages.get(msgKey), args));
 		} catch(Exception e) {
-			Log.warn("Error formatting string when sending message with key: " + msgKey);
+			CarbonLib.log.warn("Error formatting string when sending message with key: " + msgKey);
 		}
 	}
 	/**

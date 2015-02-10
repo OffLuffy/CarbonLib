@@ -7,7 +7,6 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.Recipe;
 import org.bukkit.plugin.Plugin;
 
 import java.util.*;
@@ -78,7 +77,7 @@ public final class MiscUtils {
 				if (perms.has(sender, p))
 					return true;
 			} else {
-				Log.severe("Permissions is null!");
+				CarbonLib.log.severe("Permissions is null!");
 			}
 		}
         return false;
@@ -158,6 +157,16 @@ public final class MiscUtils {
 		for (T q : query) { if (obj.equals(q)) { return true; } }
 		return false;
 	}
+	/**
+	 * Checks if an object is exactly equal (==) to any other objects in 'query'
+	 * @param obj The initial object to compare to the list of objects
+	 * @param query The list of objects to be compared to the initial object
+	 * @return Returns true if 'obj' is exactly equal (== comparison) to any object in 'query'
+	 */
+	public static <T> boolean exactEq(T obj, T ... query) {
+		for (T b : query) { if (obj == b) return true; }
+		return false;
+	}
     /**
      * Check if a number is a valid Integer
      * @param query The query to check
@@ -192,6 +201,19 @@ public final class MiscUtils {
 	public static boolean isDouble(String query) {
 		try {
 			Double.parseDouble(query);
+			return true;
+		} catch (Exception e) {
+			return false;
+		}
+	}
+	/**
+	 * Check if a number is a valid Float
+	 * @param query The query to check
+	 * @return true if the query is capable of being casted to a float, false otherwise
+	 */
+	public static boolean isFloat(String query) {
+		try {
+			Float.parseFloat(query);
 			return true;
 		} catch (Exception e) {
 			return false;
@@ -505,7 +527,7 @@ public final class MiscUtils {
 	 * @param toIndex The index of the array to end (inclusive)
 	 * @return Returns the concatenated Strings as a single String. Returns an empty string if array is null
 	 */
-	public static String stringFromArray(String[] array, String delimiter, int fromIndex, int toIndex) {
+	public static String stringFromArray(String delimiter, int fromIndex, int toIndex, String ... array) {
 		if (array == null) return "";
 		if (fromIndex < 0) { fromIndex = 0; }
 		if (toIndex > array.length-1) { toIndex = array.length-1; }
@@ -522,18 +544,18 @@ public final class MiscUtils {
 	 * @param fromIndex The index of the array to start from (inclusive)
 	 * @return Returns the concatenated Strings as a single String. Returns an empty string if array is null
 	 */
-	public static String stringFromArray(String[] array, String delimiter, int fromIndex) {
-		return stringFromArray(array, delimiter, fromIndex, array.length-1);
+	public static String stringFromArray(String delimiter, int fromIndex, String ... array) {
+		return stringFromArray( delimiter, fromIndex, array.length-1, array);
 	}
 
 	/**
 	 * Concatenates the array of Strings togther with the specified delimiter between each String.
 	 * This method will use all the Strings from the array
-	 * @param array The array of Strings to concatenate together
+	 * @param array The array of Strings tos concatenate together
 	 * @param delimiter The String to place between each String that's combined
 	 * @return Returns the concatenated Strings as a single String. Returns an empty string if array is null
 	 */
-	public static String stringFromArray(String[] array, String delimiter) {
-		return stringFromArray(array, delimiter, 0, array.length-1);
+	public static String stringFromArray(String delimiter, String ... array) {
+		return stringFromArray(delimiter, 0, array.length-1, array);
 	}
 }
