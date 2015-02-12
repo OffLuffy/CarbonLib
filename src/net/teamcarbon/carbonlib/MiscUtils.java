@@ -411,18 +411,20 @@ public final class MiscUtils {
 	 * @param query The username or UUID to search for
 	 * @return Returns an OfflinePlayer if found, false otherwise
 	 */
-	public static OfflinePlayer getOfflinePlayer(String query) {
+	public static OfflinePlayer getOfflinePlayer(String query, boolean matchOffline) {
 		for (Player p : Bukkit.getOnlinePlayers()) {
 			try {
 				if (p.getName().equalsIgnoreCase(query) || p.getUniqueId().equals(UUID.fromString(query)))
 					return p;
 			} catch (Exception e) { /*(new CarbonException(e)).printStackTrace();*/ }
 		}
-		for (OfflinePlayer p : Bukkit.getOfflinePlayers()) {
-			try {
-				if (p.getName().equalsIgnoreCase(query) || p.getUniqueId().equals(UUID.fromString(query)))
-					return p;
-			} catch (Exception e) { /*(new CarbonException(e)).printStackTrace();*/ }
+		if (matchOffline) {
+			for (OfflinePlayer p : Bukkit.getOfflinePlayers()) {
+				try {
+					if (p.getName().equalsIgnoreCase(query) || p.getUniqueId().equals(UUID.fromString(query)))
+						return p;
+				} catch (Exception e) { /*(new CarbonException(e)).printStackTrace();*/ }
+			}
 		}
 		return null;
 	}
