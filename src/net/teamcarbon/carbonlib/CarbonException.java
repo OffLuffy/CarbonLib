@@ -11,7 +11,7 @@ import java.util.List;
 public final class CarbonException extends RuntimeException {
 	private List<StackTraceElement> customElements = new ArrayList<StackTraceElement>();
 	private String scope;
-	private static String gScope, plugin;
+	private static String gScope = "net.teamcarbon", plugin;
 	private static boolean globalScopeSet = false, nameSet = true;
 	public CarbonException(String traceScope, String msg) {
 		super(msg);
@@ -32,6 +32,14 @@ public final class CarbonException extends RuntimeException {
 		Collections.addAll(customElements, e.getStackTrace());
 		if (globalScopeSet) {
 			scope = gScope;
+			cleanStack();
+		}
+	}
+	public CarbonException(String traceScope, Exception e) {
+		super(e.getMessage());
+		Collections.addAll(customElements, e.getStackTrace());
+		if (globalScopeSet) {
+			scope = traceScope;
 			cleanStack();
 		}
 	}

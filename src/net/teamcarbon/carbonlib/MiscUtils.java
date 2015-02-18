@@ -411,7 +411,7 @@ public final class MiscUtils {
 	 * @param query The username or UUID to search for
 	 * @return Returns an OfflinePlayer if found, false otherwise
 	 */
-	public static OfflinePlayer getOfflinePlayer(String query, boolean matchOffline) {
+	public static OfflinePlayer getPlayer(String query, boolean matchOffline) {
 		for (Player p : Bukkit.getOnlinePlayers()) {
 			try {
 				if (p.getName().equalsIgnoreCase(query) || p.getUniqueId().equals(UUID.fromString(query)))
