@@ -1,6 +1,5 @@
 package net.teamcarbon.carbonlib;
 
-import net.teamcarbon.carbonlib.Messages.Clr;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;

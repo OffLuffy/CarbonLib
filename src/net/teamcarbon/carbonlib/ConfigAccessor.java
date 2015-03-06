@@ -22,9 +22,9 @@ public final class ConfigAccessor {
 	 */
 	public ConfigAccessor(JavaPlugin plugin, String fileName) {
 		if (plugin == null)
-			throw new CarbonException("Plugin cannot be null");
+			throw new CarbonException(plugin, "net.teamcarbon", "Plugin cannot be null");
 		if (!plugin.isInitialized())
-			throw new CarbonException("Plugin must be initialized");
+			throw new CarbonException(plugin, "net.teamcarbon", "Plugin must be initialized");
 		if (plugin.getDataFolder() == null)
 			throw new IllegalStateException();
 		this.plugin = plugin;
@@ -41,9 +41,9 @@ public final class ConfigAccessor {
 	 */
 	public ConfigAccessor(JavaPlugin plugin, File file) {
 		if (plugin == null)
-			throw new CarbonException("Plugin cannot be null");
+			throw new CarbonException(plugin, "net.teamcarbon", "Plugin cannot be null");
 		if (!plugin.isInitialized())
-			throw new CarbonException("Plugin must be initialized");
+			throw new CarbonException(plugin, "net.teamcarbon", "Plugin must be initialized");
 		this.plugin = plugin;
 		this.fileName = file.getName();
 		if (plugin.getDataFolder() == null)

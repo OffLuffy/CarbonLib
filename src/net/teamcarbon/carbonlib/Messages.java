@@ -2,7 +2,6 @@ package net.teamcarbon.carbonlib;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -22,7 +21,7 @@ public final class Messages {
 	/**
 	 * Convenience enum, shorter than ChatColor and allows me to store custom color combinations
 	 */
-	public static enum Clr {
+	public enum Clr {
 		TITLE("6l"), TITLE2("9l"), NOTE("7o"),
 		BLACK('0'), DARKBLUE('1'), DARKGREEN('2'), DARKAQUA('3'), DARKRED('4'), PUPRLE('5'), GOLD('6'), GRAY('7'), DARKGRAY('8'), BLUE('9'),
 		LIME('a'), AQUA('b'), RED('c'), MAGENTA('d'), YELLOW('e'), WHITE('f'), MAGIC('k'), BOLD('l'), STRIKE('m'), UNDERLINE('n'), ITALIC('o'), RESET('r');
@@ -56,17 +55,24 @@ public final class Messages {
 		 * @return Returns a sequence of each character prepended with the section symbol
 		 */
 		public static String fromChars(String chars) { return fromChars(chars.toCharArray()); }
+
+		/**
+		 * Alias for ChatColor.translateAlternateColorCodes('&', msg)
+		 * @param msg The message to have color codes translated in
+		 * @return Returns the translated message
+		 */
+		public static String trans(String msg) { return msg == null ? "" : ChatColor.translateAlternateColorCodes('&', msg); }
 	}
 	/**
 	 * Common messages
 	 */
-    public static enum Message {
+    public enum Message {
 		NO_PERM("&4You do not have permission to do that"),
 		NOT_ONLINE("&4You must be in-game to use that"),
 		NEEDS_GROUP("&4You must specify a group!"),
 		GENERIC_ERROR("&4An error occurred. Please report this to an admin!");
 		private String msg;
-		Message(String message) { this.msg = ChatColor.translateAlternateColorCodes('&', message); }
+		Message(String message) { this.msg = Clr.trans(message); }
 		public String toString() { return msg; }
 	}
 

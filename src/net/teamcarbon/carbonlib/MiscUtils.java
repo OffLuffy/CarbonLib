@@ -1,6 +1,7 @@
 package net.teamcarbon.carbonlib;
 
 import net.milkbowl.vault.permission.Permission;
+import net.teamcarbon.carbonlib.Messages.Clr;
 import org.bukkit.*;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -507,7 +508,7 @@ public final class MiscUtils {
 		// Add the trailing dot if there isn't one (since I'll be adding code-specific perm nodes on later)
 		if (!perm.endsWith(".")) perm += ".";
 		// If they have all perms, replace everything and return it
-		if (perm(p, perm+"color.*") && perm(p, perm+"format.*")) return ChatColor.translateAlternateColorCodes('&', msg);
+		if (perm(p, perm+"color.*") && perm(p, perm+"format.*")) return Clr.trans(msg);
 		// Otherwise loop through each code and check for individual codes
 		for (ChatColor cc : ChatColor.values()) {
 			// If a color code, check if user has perm to change all colors, if not then check color.colorname
@@ -559,18 +560,5 @@ public final class MiscUtils {
 	 */
 	public static String stringFromArray(String delimiter, String ... array) {
 		return stringFromArray(delimiter, 0, array.length-1, array);
-	}
-	/**
-	 * Converts a List&lt;T&gt; to an array of type T
-	 * @param list The List object to convert
-	 * @param <T> The object type
-	 * @return Returns an array of the specified objects from the List
-	 */
-	@SuppressWarnings("unchecked")
-	public static <T> T[] arrayFromList(List<T> list) {
-		T[] a = (T[])new Object[list.size()];
-		for (int i = 0; i < list.size(); i++)
-			a[i] = list.get(i);
-		return a;
 	}
 }

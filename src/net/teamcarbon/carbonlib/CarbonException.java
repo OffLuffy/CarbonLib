@@ -1,5 +1,7 @@
 package net.teamcarbon.carbonlib;
 
+import org.bukkit.plugin.Plugin;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -10,38 +12,44 @@ import java.util.List;
 @SuppressWarnings("UnusedDeclaration")
 public final class CarbonException extends RuntimeException {
 	private List<StackTraceElement> customElements = new ArrayList<StackTraceElement>();
-	private String scope;
-	private static String gScope = "net.teamcarbon", plugin;
-	private static boolean globalScopeSet = false, nameSet = true;
-	public CarbonException(String traceScope, String msg) {
+	private String scope, pluginName;
+	private static boolean nameSet = true;
+
+	public CarbonException(Plugin plugin, String msg) {
 		super(msg);
+		Collections.addAll(customElements, getStackTrace());
+		if (plugin != null) {
+			nameSet = true;
+			pluginName = plugin.getName();
+		}
+	}
+	public CarbonException(Plugin plugin, Exception e) {
+		super(e.getMessage());
+		Collections.addAll(customElements, e.getStackTrace());
+		if (plugin != null) {
+			nameSet = true;
+			pluginName = plugin.getName();
+		}
+	}
+	public CarbonException(Plugin plugin, String traceScope, String msg) {
+		super(msg);
+		if (plugin != null) {
+			nameSet = true;
+			pluginName = plugin.getName();
+		}
 		Collections.addAll(customElements, getStackTrace());
 		scope = traceScope;
 		cleanStack();
 	}
-	public CarbonException(String msg) {
-		super(msg);
-		Collections.addAll(customElements, getStackTrace());
-		if (globalScopeSet) {
-			scope = gScope;
-			cleanStack();
-		}
-	}
-	public CarbonException(Exception e) {
+	public CarbonException(Plugin plugin, String traceScope, Exception e) {
 		super(e.getMessage());
-		Collections.addAll(customElements, e.getStackTrace());
-		if (globalScopeSet) {
-			scope = gScope;
-			cleanStack();
+		if (plugin != null) {
+			nameSet = true;
+			pluginName = plugin.getName();
 		}
-	}
-	public CarbonException(String traceScope, Exception e) {
-		super(e.getMessage());
 		Collections.addAll(customElements, e.getStackTrace());
-		if (globalScopeSet) {
-			scope = traceScope;
-			cleanStack();
-		}
+		scope = traceScope;
+		cleanStack();
 	}
 
 	/**
@@ -59,24 +67,6 @@ public final class CarbonException extends RuntimeException {
 	}
 
 	/**
-	 * Sets the scope which dictates which lines are printed from an exception
-	 * @param scope The scope to restrict output to (i.e. me.teamcarbon)
-	 */
-	public static void setGlobalScope(String scope) {
-		globalScopeSet = true;
-		gScope = scope;
-	}
-
-	/**
-	 * Sets the name the printStackTrace() method will use
-	 * @param pluginName The name of your plugin
-	 */
-	public static void setPluginName(String pluginName) {
-		nameSet = true;
-		plugin = pluginName;
-	}
-
-	/**
 	 * Fetches the list of StackTraceElements maintained by this object
 	 * @return List of StackTraceElements
 	 */
@@ -86,7 +76,7 @@ public final class CarbonException extends RuntimeException {
 
 	@Override
 	public void printStackTrace() {
-		System.err.println((nameSet?plugin + " " : "") + "Exception: " + getMessage());
+		System.err.println((nameSet?pluginName + " " : "") + "Exception: " + getMessage());
 		for (StackTraceElement ste : customElements)
 			System.err.println("\t" + ste.getClassName() + "." + ste.getMethodName() + "(" + ste.getFileName() + ":" + ste.getLineNumber() + ")");
 	}
