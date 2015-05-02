@@ -62,9 +62,17 @@ public final class MiscUtils {
 	 * @param permissions The list of perms to check
 	 * @return Returns true if the player has any of the perms, false if not or if the World is somehow null
 	 */
-	public static boolean perm(OfflinePlayer player, String ... permissions) {
-		World w = (player.isOnline() ? ((Player) player).getWorld() : Bukkit.getWorlds().get(0));
-		return w != null && perm(w, player, permissions);
+	public static boolean perm(OfflinePlayer player, String ... permissions) { return perm(player, null, permissions); }
+	/**
+	 * Checks if the Player has any of the listed perms, assuming the default world if the player isn't online
+	 * @param player The Player to check
+	 * @param world The World to fetch the Player's permissions for
+	 * @param permissions The list of perms to check
+	 * @return Returns true if the player has any of the perms, false if not or if the World is somehow null
+	 */
+	public static boolean perm(OfflinePlayer player, World world, String ... permissions) {
+		if (world == null) world =(player.isOnline() ? ((Player) player).getWorld() : Bukkit.getWorlds().get(0));
+		return world != null && perm(world, player, permissions);
 	}
     /**
      * Checks if the CommandSender has any of the listed perms
@@ -322,7 +330,7 @@ public final class MiscUtils {
 	 * @param mat The name or number to search for
 	 * @return Returns a Material object if found, null otherwise
 	 */
-	@SuppressWarnings("deprecation")
+	@SuppressWarnings({"deprecation"})
 	public static Material getMaterial(String mat) {
 		if (MiscUtils.isInteger(mat)) {
 			return Material.getMaterial(Integer.parseInt(mat));
@@ -336,7 +344,9 @@ public final class MiscUtils {
 		}
 		if (checkPlugin("Essentials", true)) {
 			com.earth2me.essentials.Essentials ess = (com.earth2me.essentials.Essentials) getPlugin("Essentials", true);
-			try { return ess.getItemDb().get(mat).getType(); } catch (Exception e) { return null; }
+			try {
+				return ess == null ? null : ess.getItemDb().get(mat).getType();
+			} catch (Exception e) { return null; }
 		}
 		return null;
 	}
@@ -410,13 +420,13 @@ public final class MiscUtils {
 	/**
 	 * Attempts to fetch an OfflinePlayer based on a String name or UUID
 	 * @param query The username or UUID to search for
+	 * @param matchOffline Whether or not to attempt to search through offline players
 	 * @return Returns an OfflinePlayer if found, false otherwise
 	 */
 	public static OfflinePlayer getPlayer(String query, boolean matchOffline) {
+		// TODO Improve this?
 		for (Player p : Bukkit.getOnlinePlayers()) {
-			try {
-				if (p.getName().equalsIgnoreCase(query) || p.getUniqueId().equals(UUID.fromString(query)))
-					return p;
+			try { if (p.getName().equalsIgnoreCase(query) || p.getUniqueId().equals(UUID.fromString(query))) return p;
 			} catch (Exception e) { /*(new CarbonException(e)).printStackTrace();*/ }
 		}
 		if (matchOffline) {
@@ -425,6 +435,20 @@ public final class MiscUtils {
 					if (p.getName().equalsIgnoreCase(query) || p.getUniqueId().equals(UUID.fromString(query)))
 						return p;
 				} catch (Exception e) { /*(new CarbonException(e)).printStackTrace();*/ }
+			}
+		}
+		return null;
+	}
+	/**
+	 * Attempts to fetch an OfflinePlayer based on a String name or UUID
+	 * @param id The UUID to search for
+	 * @param matchOffline Whether or not to attempt to search through offline players
+	 * @return Returns an OfflinePlayer if found, false otherwise
+	 */
+	public static OfflinePlayer getPlayer(UUID id, boolean matchOffline) {
+		if (matchOffline) { return Bukkit.getPlayer(id); } else {
+			for (Player pl : Bukkit.getOnlinePlayers()) {
+				if (pl.getUniqueId().equals(id)) return pl;
 			}
 		}
 		return null;
@@ -561,4 +585,5 @@ public final class MiscUtils {
 	public static String stringFromArray(String delimiter, String ... array) {
 		return stringFromArray(delimiter, 0, array.length-1, array);
 	}
+
 }

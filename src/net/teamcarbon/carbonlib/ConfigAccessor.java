@@ -1,18 +1,18 @@
 package net.teamcarbon.carbonlib;
 
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.plugin.java.JavaPlugin;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.logging.Level;
 
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.plugin.java.JavaPlugin;
-
 @SuppressWarnings({"UnusedDeclaration", "deprecation"})
 public final class ConfigAccessor {
-	private final String fileName;
-	private final JavaPlugin plugin;
+	private String fileName;
+	private JavaPlugin plugin;
 	private File configFile;
 	private FileConfiguration fileConfiguration;
 	/**
@@ -20,38 +20,28 @@ public final class ConfigAccessor {
 	 * @param plugin The JavaPlugin using the ConfigAccessor
 	 * @param fileName The path to the file being accessed
 	 */
-	public ConfigAccessor(JavaPlugin plugin, String fileName) {
-		if (plugin == null)
-			throw new CarbonException(plugin, "net.teamcarbon", "Plugin cannot be null");
-		if (!plugin.isInitialized())
-			throw new CarbonException(plugin, "net.teamcarbon", "Plugin must be initialized");
-		if (plugin.getDataFolder() == null)
-			throw new IllegalStateException();
-		this.plugin = plugin;
-		this.fileName = fileName;
-		this.configFile = new File(plugin.getDataFolder(), fileName);
-		saveDefaultConfig();
-		reloadConfig();
-	}
-
+	public ConfigAccessor(JavaPlugin plugin, String fileName) { init(plugin, fileName, null); }
 	/**
 	 * Convenience object to assist with handling FileConfigurations other than the plugin's primary config file
 	 * @param plugin The JavaPlugin using the ConfigAccessor
 	 * @param file The file being accessed
 	 */
-	public ConfigAccessor(JavaPlugin plugin, File file) {
+	public ConfigAccessor(JavaPlugin plugin, File file) { init(plugin, null, file); }
+
+	private void init(JavaPlugin plugin, String fileName, File file) {
 		if (plugin == null)
-			throw new CarbonException(plugin, "net.teamcarbon", "Plugin cannot be null");
+			throw new CarbonException(CarbonLib.inst, "ConfigAccessor construct error: Plugin cannot be null");
 		if (!plugin.isInitialized())
-			throw new CarbonException(plugin, "net.teamcarbon", "Plugin must be initialized");
-		this.plugin = plugin;
-		this.fileName = file.getName();
+			throw new CarbonException(plugin, "ConfigAccessor construct error: Plugin must be initialized");
 		if (plugin.getDataFolder() == null)
-			throw new IllegalStateException();
-		this.configFile = file;
+			throw new CarbonException(plugin, "ConfigAccessor construct error: Provided plugin's data folder is null");
+		this.plugin = plugin;
+		this.fileName = fileName == null ? file.getName() : fileName;
+		this.configFile = file == null ? new File(plugin.getDataFolder(), fileName) : file;
 		saveDefaultConfig();
 		reloadConfig();
 	}
+
 	/**
 	 * Attempts to reload the FileConfiguration object associated with this instance of ConfigAccessor
 	 * @see FileConfiguration
