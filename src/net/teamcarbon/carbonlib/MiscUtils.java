@@ -548,17 +548,19 @@ public final class MiscUtils {
 	/**
 	 * Concatenates the array of Strings togther with the specified delimiter between each String.
 	 * This method will use Strings from the array from index 'fromIndex' to index 'toIndex'
-	 * @param array The array of Strings to concatenate together
+	 * @param array The array of Objects to concatenate together
 	 * @param delimiter The String to place between each String that's combined
 	 * @param fromIndex The index of the array to start from (inclusive)
 	 * @param toIndex The index of the array to end (inclusive)
 	 * @return Returns the concatenated Strings as a single String. Returns an empty string if array is null
 	 */
-	public static String stringFromArray(String delimiter, int fromIndex, int toIndex, String ... array) {
+	public static String stringFromArray(String delimiter, int fromIndex, int toIndex, Object ... array) {
 		if (array == null) return "";
 		if (fromIndex < 0) { fromIndex = 0; }
 		if (toIndex > array.length-1) { toIndex = array.length-1; }
-		String newString = array[fromIndex];
+		String newString = array[fromIndex].toString();
+		if (array instanceof Player[]) newString = ((Player) array[fromIndex]).getName();
+		if (array instanceof World[]) newString = ((World) array[fromIndex]).getName();
 		for (int i = fromIndex+1; i <= toIndex; i++) { newString += delimiter + ((array[i]==null)?"":array[i]); }
 		return newString;
 	}
@@ -571,7 +573,7 @@ public final class MiscUtils {
 	 * @param fromIndex The index of the array to start from (inclusive)
 	 * @return Returns the concatenated Strings as a single String. Returns an empty string if array is null
 	 */
-	public static String stringFromArray(String delimiter, int fromIndex, String ... array) {
+	public static String stringFromArray(String delimiter, int fromIndex, Object ... array) {
 		return stringFromArray( delimiter, fromIndex, array.length-1, array);
 	}
 
@@ -582,7 +584,7 @@ public final class MiscUtils {
 	 * @param delimiter The String to place between each String that's combined
 	 * @return Returns the concatenated Strings as a single String. Returns an empty string if array is null
 	 */
-	public static String stringFromArray(String delimiter, String ... array) {
+	public static String stringFromArray(String delimiter, Object ... array) {
 		return stringFromArray(delimiter, 0, array.length-1, array);
 	}
 
