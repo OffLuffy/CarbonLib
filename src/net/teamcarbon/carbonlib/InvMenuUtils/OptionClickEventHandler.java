@@ -1,3 +1,6 @@
 package net.teamcarbon.carbonlib.InvMenuUtils;
 
-public interface OptionClickEventHandler { void onOptionClick(OptionClickEvent event); }
+public interface OptionClickEventHandler {
+	void onOptionLeftClick(OptionLeftClickEvent event);
+	void onOptionRightClick(OptionRightClickEvent event);
+}

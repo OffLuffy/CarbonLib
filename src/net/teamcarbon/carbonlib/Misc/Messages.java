@@ -1,5 +1,6 @@
-package net.teamcarbon.carbonlib;
+package net.teamcarbon.carbonlib.Misc;
 
+import net.teamcarbon.carbonlib.CarbonLib;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
@@ -24,7 +25,7 @@ public final class Messages {
 	public enum Clr {
 		TITLE("6l"), TITLE2("9l"), NOTE("7o"),
 		BLACK('0'), DARKBLUE('1'), DARKGREEN('2'), DARKAQUA('3'), DARKRED('4'), PUPRLE('5'), GOLD('6'), GRAY('7'), DARKGRAY('8'), BLUE('9'),
-		LIME('a'), AQUA('b'), RED('c'), MAGENTA('d'), YELLOW('e'), WHITE('f'), MAGIC('k'), BOLD('l'), STRIKE('m'), UNDERLINE('n'), ITALIC('o'), RESET('r');
+		LIME('a'), AQUA('b'), RED('c'), MAGENTA('d'), YELLOW('e'), WHITE('f'), MAGIC('k'), BOLD('l'), STRIKE('m'), UNDERLINE('n'), ITALIC('o'), RESET('r'), Clr();
 		private String clr = "";
 		Clr(String chars) { clr = fromChars(chars); }
 		Clr(char ... chars) { clr = fromChars(chars); }
@@ -45,8 +46,7 @@ public final class Messages {
 		 */
 		public static String fromChars(char ... chars) {
 			String clrs = "";
-			for (char c : chars)
-				clrs += "\u00A7"+c;
+			for (char c : chars) clrs += "\u00A7"+c;
 			return clrs;
 		}
 		/**

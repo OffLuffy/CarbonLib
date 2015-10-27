@@ -1,7 +1,8 @@
-package net.teamcarbon.carbonlib;
+package net.teamcarbon.carbonlib.Misc;
 
 import net.milkbowl.vault.permission.Permission;
-import net.teamcarbon.carbonlib.Messages.Clr;
+import net.teamcarbon.carbonlib.CarbonLib;
+import net.teamcarbon.carbonlib.Misc.Messages.Clr;
 import org.bukkit.*;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -12,12 +13,28 @@ import org.bukkit.plugin.Plugin;
 
 import java.util.*;
 
+import static org.bukkit.Material.*;
+
 /**
  * Convenience class with several miscellaneous purposes
  * @author OffLuffy
  */
-@SuppressWarnings({"ResultOfMethodCallIgnored", "UnusedDeclaration"})
+@SuppressWarnings({"UnusedDeclaration"})
 public final class MiscUtils {
+
+	// Materials that allow a player to walk through them
+	private static final Material[] passThroughMats = new Material[]{
+			AIR, SAPLING, POWERED_RAIL, DETECTOR_RAIL, LONG_GRASS, DEAD_BUSH, YELLOW_FLOWER, RED_ROSE, BROWN_MUSHROOM,
+			RED_MUSHROOM, TORCH, REDSTONE_WIRE, SEEDS, SIGN_POST, WOODEN_DOOR, LADDER, RAILS, WALL_SIGN, LEVER, STONE_PLATE,
+			IRON_DOOR_BLOCK, WOOD_PLATE, REDSTONE_TORCH_OFF, REDSTONE_TORCH_ON, STONE_BUTTON, SNOW, SUGAR_CANE_BLOCK,
+			DIODE_BLOCK_OFF, DIODE_BLOCK_ON, PUMPKIN_STEM, MELON_STEM, VINE, FENCE_GATE, WATER_LILY, NETHER_WARTS,
+			CARPET, ACTIVATOR_RAIL
+	};
+	// Of the Materials that are pass-through, ones that allow the player to stand on them and covers whole square
+	// TODO Check if these can be negated from passThroughMats later (depending on use)
+	private static final Material[] supportingMats = new Material[]{
+			POWERED_RAIL, RAILS, SNOW, CARPET, ACTIVATOR_RAIL, DETECTOR_RAIL
+	};
     private static Permission perms;
     /**
      * Sets the Permission object used for perm checking
@@ -133,7 +150,7 @@ public final class MiscUtils {
      * @return Returns true if the query matches any String from matches (case-insensitive)
      */
     public static boolean eq(String query, String ... matches) {
-		query.replace("_", "").replace("-", "");
+		query = query.replace("_", "").replace("-", "");
         for (String s : matches) {
 			s = s.replace("_", "").replace("-", "");
 			if (query.equalsIgnoreCase(s))
@@ -157,13 +174,13 @@ public final class MiscUtils {
 	 */
 	public static boolean starts(String query, String ... matches) { for (String s : matches) if (query.toLowerCase().startsWith(s.toLowerCase())) return true; return false; }
 	/**
-	 * Checks an Object's equality to a list of other Objects
+	 * Checks an Object's equality to a list of other Objects. Uses == for Enums.
 	 * @param obj The Object to compare
 	 * @param query An array of Objects to compare the obj against
 	 * @return Returns true if 'obj' is equal to any Object in the 'query' array
 	 */
 	public static <T> boolean objEq(T obj, T ... query) {
-		for (T q : query) { if (obj.equals(q)) { return true; } }
+		for (T q : query) { if ((obj.getClass().isEnum() && obj == q) || obj.equals(q)) { return true; } }
 		return false;
 	}
 	/**
@@ -176,107 +193,7 @@ public final class MiscUtils {
 		for (T b : query) { if (obj == b) return true; }
 		return false;
 	}
-    /**
-     * Check if a number is a valid Integer
-     * @param query The query to check
-     * @return true if the query is capable of being casted to an int, false otherwise
-     */
-    public static boolean isInteger(String query) {
-        try {
-            Integer.parseInt(query);
-            return true;
-        } catch(Exception e) {
-            return false;
-        }
-    }
-    /**
-     * Check if a number is a valid Long
-     * @param query The query to check
-     * @return true if the query is capable of being casted to a long, false otherwise
-     */
-    public static boolean isLong(String query) {
-        try {
-            Long.parseLong(query);
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-	/**
-	 * Check if a number is a valid Double
-	 * @param query The query to check
-	 * @return true if the query is capable of being casted to a double, false otherwise
-	 */
-	public static boolean isDouble(String query) {
-		try {
-			Double.parseDouble(query);
-			return true;
-		} catch (Exception e) {
-			return false;
-		}
-	}
-	/**
-	 * Check if a number is a valid Float
-	 * @param query The query to check
-	 * @return true if the query is capable of being casted to a float, false otherwise
-	 */
-	public static boolean isFloat(String query) {
-		try {
-			Float.parseFloat(query);
-			return true;
-		} catch (Exception e) {
-			return false;
-		}
-	}
-    /**
-     * Check if a number is a valid Boolean
-     * @param query The query to check
-     * @return true if the query is capable of being casted to a boolean, false otherwise
-     */
-    public static boolean isBoolean(String query) {
-		return (isInteger(query) && Integer.parseInt(query) > 0) ||
-				eq(query, "on", "off", "1", "0", "true", "false", "enabled", "disabled", "enable", "disable",
-						"allow", "deny", "yes", "no", "y", "n", "agree", "disagree");
-    }
-    /**
-     * Parses a boolean more generously than Java's Boolean.toBoolean() method
-     * @param query The query to check
-     * @return true if the query is parsed as true, false otherwise or if un-parsable
-     */
-    public static boolean toBoolean(String query) {
-        return isInteger(query) && Integer.parseInt(query) > 0 ||
-                isBoolean(query) && eq(query, "on", "1", "true", "enabled", "enable", "allow", "yes", "y", "agree");
-    }
-	/**
-	 * Forces a value to be within the min or max value, inclusive.
-	 * @param val The value to normalize
-	 * @param min The value that val must be greater than or equal to
-	 * @param max The value that val must be lesser than or equal to
-	 * @return Returns the min if value is less than min, returns the max if value is greather than max, returns val otherwise
-	 */
-	public static int normalizeInt(int val, int min, int max) {
-		if (min > max) {
-			int temp = min;
-			min = max;
-			max = temp;
-		}
-		return ( (val < min) ? min : ( (val > max) ? max : val ) );
-	}
-	/**
-	 * Forces a value to be within the min or max value, inclusive.
-	 * @param val The value to normalize
-	 * @param min The value that val must be greater than or equal to
-	 * @param max The value that val must be lesser than or equal to
-	 * @return Returns the min if value is less than min, returns the max if value is greather than max, returns val otherwise
-	 */
-	public static double normalizeDouble(double val, double min, double max) {
-		if (min > max) {
-			double temp = min;
-			min = max;
-			max = temp;
-		}
-		return ( ( val < min) ? min : ( (val > max) ? max : val ) );
-	}
+
 	/**
 	 * Short-hand method to capitalize the first letter of a String
 	 * @param word The String to be capitalized
@@ -318,13 +235,7 @@ public final class MiscUtils {
 		Collections.addAll(ret, stuff);
 		return ret;
 	}
-	/**
-	 * Generates a random number
-	 * @param min The lowest number allowed
-	 * @param max The highest number allowed
-	 * @return Returns a random int between the specified boundaries, inclusive
-	 */
-	public static int rand(int min, int max) { return min + (int)(Math.random() * ((max - min) + 1)); }
+
 	/**
 	 * Attempts to parse a material name or number to a Material. Can use Essentials's item aliases if it's installed
 	 * @param mat The name or number to search for
@@ -332,7 +243,7 @@ public final class MiscUtils {
 	 */
 	@SuppressWarnings({"deprecation"})
 	public static Material getMaterial(String mat) {
-		if (MiscUtils.isInteger(mat)) {
+		if (TypeUtils.isInteger(mat)) {
 			return Material.getMaterial(Integer.parseInt(mat));
 		} else {
 			if (Material.getMaterial(mat) != null)
@@ -358,7 +269,7 @@ public final class MiscUtils {
 	@SuppressWarnings("deprecation")
 	public static Enchantment getEnchant(String ench) {
 		if (Enchantment.getByName(ench.toUpperCase()) != null) return Enchantment.getByName(ench);
-		if (isInteger(ench) && Enchantment.getById(Integer.parseInt(ench)) != null) return Enchantment.getById(Integer.parseInt(ench));
+		if (TypeUtils.isInteger(ench) && Enchantment.getById(Integer.parseInt(ench)) != null) return Enchantment.getById(Integer.parseInt(ench));
 		if (checkPlugin("Essentials", true)) { try { return com.earth2me.essentials.Enchantments.getByName(ench); } catch (Exception e) { return null; } }
 		return null;
 	}
@@ -405,18 +316,7 @@ public final class MiscUtils {
 				it.remove();
 		}
 	}*/
-	/**
-	 * Remaps a value in a range to an equivilent value in another range.
-	 * @param oldMin The minimum value of the old range
-	 * @param oldMax The maximum value of the old range
-	 * @param newMin The minimum value of the new range
-	 * @param newMax The maximum value of the new range
-	 * @param value The value in the old range to be remapped to the new range
-	 * @return Returns a double of the old value's equivilent value in the new range
-	 */
-	public static double remapValue(double oldMin, double oldMax, double newMin, double newMax, double value) {
-		return (((value - oldMin) * (newMax - newMin)) / (oldMax - oldMin)) + newMin;
-	}
+
 	/**
 	 * Attempts to fetch an OfflinePlayer based on a String name or UUID
 	 * @param query The username or UUID to search for
@@ -554,14 +454,20 @@ public final class MiscUtils {
 	 * @param toIndex The index of the array to end (inclusive)
 	 * @return Returns the concatenated Strings as a single String. Returns an empty string if array is null
 	 */
-	public static String stringFromArray(String delimiter, int fromIndex, int toIndex, Object ... array) {
+	public static String stringFromSubArray(String delimiter, int fromIndex, int toIndex, Object... array) {
 		if (array == null) return "";
 		if (fromIndex < 0) { fromIndex = 0; }
 		if (toIndex > array.length-1) { toIndex = array.length-1; }
-		String newString = array[fromIndex].toString();
-		if (array instanceof Player[]) newString = ((Player) array[fromIndex]).getName();
-		if (array instanceof World[]) newString = ((World) array[fromIndex]).getName();
-		for (int i = fromIndex+1; i <= toIndex; i++) { newString += delimiter + ((array[i]==null)?"":array[i]); }
+		String newString = "";
+		boolean first = true;
+		for (int i = fromIndex; i <= toIndex; i++) {
+			String word = array[i] == null ? "" : array[i].toString();
+			if (array[i] instanceof String) word = (String) array[i];
+			else if (array[i] instanceof Player) word = ((Player) array[i]).getName();
+			else if (array[i] instanceof World) word = ((World) array[i]).getName();
+			newString += (first ? "" : delimiter) + word;
+			first = false;
+		}
 		return newString;
 	}
 
@@ -573,8 +479,8 @@ public final class MiscUtils {
 	 * @param fromIndex The index of the array to start from (inclusive)
 	 * @return Returns the concatenated Strings as a single String. Returns an empty string if array is null
 	 */
-	public static String stringFromArray(String delimiter, int fromIndex, Object ... array) {
-		return stringFromArray( delimiter, fromIndex, array.length-1, array);
+	public static String stringFromSubArray(String delimiter, int fromIndex, Object... array) {
+		return stringFromSubArray(delimiter, fromIndex, array.length - 1, array);
 	}
 
 	/**
@@ -584,8 +490,25 @@ public final class MiscUtils {
 	 * @param delimiter The String to place between each String that's combined
 	 * @return Returns the concatenated Strings as a single String. Returns an empty string if array is null
 	 */
-	public static String stringFromArray(String delimiter, Object ... array) {
-		return stringFromArray(delimiter, 0, array.length-1, array);
+	public static String stringFromArray(String delimiter, Object... array) {
+		return stringFromSubArray(delimiter, 0, array.length - 1, array);
 	}
 
+	/**
+	 * Checks if the Material allows a user to pass through it
+	 * @param mat The Material to check
+	 * @return Returns true if the Material allows a user to pass through it, false otherwise
+	 */
+	public static boolean isHollow(Material mat) {
+		return Arrays.asList(passThroughMats).contains(mat);
+	}
+
+	/**
+	 * Checks if the Material allws a user to stand on it
+	 * @param mat The Material to check
+	 * @return Returns true if the Material allows the user to stand on it, false otherwise
+	 */
+	public static boolean isSupporting(Material mat) {
+		return !isHollow(mat) || Arrays.asList(supportingMats).contains(mat);
+	}
 }

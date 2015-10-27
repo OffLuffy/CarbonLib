@@ -8,13 +8,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import net.teamcarbon.carbonlib.Misc.ReflectionUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
-import net.teamcarbon.carbonlib.ParticleUtils.ReflectionUtils.PackageType;
+import net.teamcarbon.carbonlib.Misc.ReflectionUtils.PackageType;
 
 /**
  * <b>ParticleEffect Library</b>
@@ -405,7 +406,7 @@ public enum ParticleEffect {
 	 * @param requiredVersion Version which is required (1.x)
 	 * @param properties Properties of this particle effect
 	 */
-	private ParticleEffect(String name, int id, int requiredVersion, ParticleProperty... properties) {
+	ParticleEffect(String name, int id, int requiredVersion, ParticleProperty... properties) {
 		this.name = name;
 		this.id = id;
 		this.requiredVersion = requiredVersion;
@@ -904,7 +905,7 @@ public enum ParticleEffect {
 	 * @author DarkBlade12
 	 * @since 1.7
 	 */
-	public static enum ParticleProperty {
+	public enum ParticleProperty {
 		/**
 		 * The particle effect requires water to be displayed
 		 */

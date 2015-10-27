@@ -1,4 +1,4 @@
-package net.teamcarbon.carbonlib;
+package net.teamcarbon.carbonlib.Misc;
 
 import org.bukkit.plugin.Plugin;
 

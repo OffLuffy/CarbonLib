@@ -1,4 +1,4 @@
-package net.teamcarbon.carbonlib.ParticleUtils;
+package net.teamcarbon.carbonlib.Misc;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -378,7 +378,7 @@ public class ReflectionUtils {
 		 *
 		 * @param path Path of the package
 		 */
-		private PackageType(String path) {
+		PackageType(String path) {
 			this.path = path;
 		}
 
@@ -388,7 +388,7 @@ public class ReflectionUtils {
 		 * @param parent Parent package of the package
 		 * @param path Path of the package
 		 */
-		private PackageType(PackageType parent, String path) {
+		PackageType(PackageType parent, String path) {
 			this(parent + "." + path);
 		}
 
@@ -464,7 +464,7 @@ public class ReflectionUtils {
 		 * @param primitive Primitive class of this data type
 		 * @param reference Reference class of this data type
 		 */
-		private DataType(Class<?> primitive, Class<?> reference) {
+		DataType(Class<?> primitive, Class<?> reference) {
 			this.primitive = primitive;
 			this.reference = reference;
 		}

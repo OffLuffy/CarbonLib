@@ -1,5 +1,6 @@
-package net.teamcarbon.carbonlib;
+package net.teamcarbon.carbonlib.Misc;
 
+import net.teamcarbon.carbonlib.CarbonLib;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;

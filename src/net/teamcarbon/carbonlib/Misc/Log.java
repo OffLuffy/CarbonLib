@@ -1,4 +1,4 @@
-package net.teamcarbon.carbonlib;
+package net.teamcarbon.carbonlib.Misc;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -77,6 +77,6 @@ public final class Log {
 	/**
 	 * @return Returns true if the plugin is not null and the specified debug config path returns true, false otherwise
 	 */
-	public boolean isDebugEnabled() { return (pl != null) && pl.getConfig().getBoolean(debugPath, false); }
+	public boolean isDebugEnabled() { return pl != null && debugPath != null && pl.getConfig().getBoolean(debugPath, false); }
 
 }

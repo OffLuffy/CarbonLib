@@ -1,5 +1,7 @@
 package net.teamcarbon.carbonlib;
 
+import net.teamcarbon.carbonlib.Misc.CarbonException;
+import net.teamcarbon.carbonlib.Misc.Log;
 import org.bukkit.plugin.java.JavaPlugin;
 
 @SuppressWarnings("UnusedDeclaration")

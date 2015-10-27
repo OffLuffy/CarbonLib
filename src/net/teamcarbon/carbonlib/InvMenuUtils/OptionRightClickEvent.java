@@ -4,7 +4,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 @SuppressWarnings("unused")
-public class OptionClickEvent {
+public class OptionRightClickEvent {
 	private Player player;
 	private int position;
 	private String name;
@@ -12,7 +12,7 @@ public class OptionClickEvent {
 	private boolean destroy;
 	private ItemStack item;
 
-	public OptionClickEvent(Player player, int position, String name, ItemStack item) {
+	public OptionRightClickEvent(Player player, int position, String name, ItemStack item) {
 		this.player = player;
 		this.position = position;
 		this.name = name;
