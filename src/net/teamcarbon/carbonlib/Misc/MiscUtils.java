@@ -1,5 +1,6 @@
 package net.teamcarbon.carbonlib.Misc;
 
+import net.milkbowl.vault.item.Items;
 import net.milkbowl.vault.permission.Permission;
 import net.teamcarbon.carbonlib.CarbonLib;
 import net.teamcarbon.carbonlib.Misc.Messages.Clr;
@@ -23,19 +24,52 @@ import static org.bukkit.Material.*;
 public final class MiscUtils {
 
 	// Materials that allow a player to walk through them
-	private static final Material[] passThroughMats = new Material[]{
+	private static final Material[] permeableMats = new Material[]{
 			AIR, SAPLING, POWERED_RAIL, DETECTOR_RAIL, LONG_GRASS, DEAD_BUSH, YELLOW_FLOWER, RED_ROSE, BROWN_MUSHROOM,
 			RED_MUSHROOM, TORCH, REDSTONE_WIRE, SEEDS, SIGN_POST, WOODEN_DOOR, LADDER, RAILS, WALL_SIGN, LEVER, STONE_PLATE,
 			IRON_DOOR_BLOCK, WOOD_PLATE, REDSTONE_TORCH_OFF, REDSTONE_TORCH_ON, STONE_BUTTON, SNOW, SUGAR_CANE_BLOCK,
 			DIODE_BLOCK_OFF, DIODE_BLOCK_ON, PUMPKIN_STEM, MELON_STEM, VINE, FENCE_GATE, WATER_LILY, NETHER_WARTS,
 			CARPET, ACTIVATOR_RAIL
 	};
-	// Of the Materials that are pass-through, ones that allow the player to stand on them and covers whole square
-	// TODO Check if these can be negated from passThroughMats later (depending on use)
+
+	// Of the Materials that are permeable, ones that allow the player to stand on them and covers whole square
+	// TODO Check if these can be negated from permeableMats later (depending on use)
 	private static final Material[] supportingMats = new Material[]{
 			POWERED_RAIL, RAILS, SNOW, CARPET, ACTIVATOR_RAIL, DETECTOR_RAIL
 	};
+
+	private static final HashMap<Enchantment, String[]> enchantAliases = new HashMap<Enchantment, String[]>();
+
     private static Permission perms;
+
+	public MiscUtils() {
+		enchantAliases.put(Enchantment.DAMAGE_ALL, new String[] {"alldamage", "alldmg", "sharpness", "sharp", "dal"});
+		enchantAliases.put(Enchantment.DAMAGE_ARTHROPODS , new String[] {"ardmg", "baneofarthropods", "baneofarthropod", "arthropod", "dar"});
+		enchantAliases.put(Enchantment.DAMAGE_UNDEAD , new String[] {"undeaddamage", "smite", "du"});
+		enchantAliases.put(Enchantment.DIG_SPEED , new String[] {"digspeed", "efficiency", "minespeed", "cutspeed", "ds", "eff"});
+		enchantAliases.put(Enchantment.DURABILITY , new String[] {"durability", "dura", "unbreaking", "d"});
+		enchantAliases.put(Enchantment.THORNS , new String[] {"thorns", "highcrit", "thorn", "highercrit", "t"});
+		enchantAliases.put(Enchantment.FIRE_ASPECT , new String[] {"fireaspect", "fire", "meleefire", "meleeflame", "fa"});
+		enchantAliases.put(Enchantment.KNOCKBACK , new String[] {"knockback", "kback", "kb", "k"});
+		enchantAliases.put(Enchantment.LOOT_BONUS_BLOCKS , new String[] {"blockslootbonus", "fortune", "fort", "lbb"});
+		enchantAliases.put(Enchantment.LOOT_BONUS_MOBS , new String[] {"mobslootbonus", "mobloot", "looting", "lbm"});
+		enchantAliases.put(Enchantment.OXYGEN , new String[] {"oxygen", "respiration", "breathing", "breath", "o"});
+		enchantAliases.put(Enchantment.PROTECTION_ENVIRONMENTAL , new String[] {"protection", "prot", "protect", "p"});
+		enchantAliases.put(Enchantment.PROTECTION_EXPLOSIONS , new String[] {"explosionsprotection", "explosionprotection", "expprot", "blastprotection", "bprotection", "bprotect", "blastprotect", "pe"});
+		enchantAliases.put(Enchantment.PROTECTION_FALL , new String[] {"fallprotection", "fallprot", "featherfall", "featherfalling", "pfa"});
+		enchantAliases.put(Enchantment.PROTECTION_FIRE , new String[] {"fireprotection", "flameprotection", "fireprotect", "flameprotect", "fireprot", "flameprot", "pf"});
+		enchantAliases.put(Enchantment.PROTECTION_PROJECTILE , new String[] {"projectileprotection", "projprot", "pp"});
+		enchantAliases.put(Enchantment.SILK_TOUCH , new String[] {"silktouch", "softtouch", "st"});
+		enchantAliases.put(Enchantment.WATER_WORKER , new String[] {"waterworker", "aquaaffinity", "watermine", "ww"});
+		enchantAliases.put(Enchantment.FIRE_ASPECT , new String[] {"firearrow", "flame", "flamearrow", "af"});
+		enchantAliases.put(Enchantment.ARROW_DAMAGE , new String[] {"arrowdamage", "power", "arrowpower", "ad"});
+		enchantAliases.put(Enchantment.ARROW_KNOCKBACK , new String[] {"arrowknockback", "arrowkb", "punch", "arrowpunch", "ak"});
+		enchantAliases.put(Enchantment.ARROW_INFINITE , new String[] {"infinitearrows", "infarrows", "infinity", "infinite", "unlimited", "unlimitedarrows", "ai"});
+		enchantAliases.put(Enchantment.LUCK , new String[] {"luck", "luckofsea", "luckofseas", "rodluck"});
+		enchantAliases.put(Enchantment.LURE , new String[] {"lure", "rodlure"});
+		enchantAliases.put(Enchantment.DEPTH_STRIDER , new String[] {"depthstrider", "depth", "strider"});
+	}
+
     /**
      * Sets the Permission object used for perm checking
      * @param p The Permission object provided by Vault
@@ -228,7 +262,7 @@ public final class MiscUtils {
 	/**
 	 * Short-hand method of forming a List&lt;?&gt; from an array of items
 	 * @param stuff The items being translated into a List
-	 * @return Returns a List of the specifiec objects
+	 * @return Returns a List of the specified objects
 	 */
 	public static <T> List<T> quickList(T ... stuff) {
 		List<T> ret = new ArrayList<T>();
@@ -237,30 +271,12 @@ public final class MiscUtils {
 	}
 
 	/**
-	 * Attempts to parse a material name or number to a Material. Can use Essentials's item aliases if it's installed
+	 * Attempts to parse a material name or number to a Material using Vault
 	 * @param mat The name or number to search for
 	 * @return Returns a Material object if found, null otherwise
 	 */
 	@SuppressWarnings({"deprecation"})
-	public static Material getMaterial(String mat) {
-		if (TypeUtils.isInteger(mat)) {
-			return Material.getMaterial(Integer.parseInt(mat));
-		} else {
-			if (Material.getMaterial(mat) != null)
-				return Material.getMaterial(mat);
-			if (Material.getMaterial(mat.toUpperCase()) != null)
-				return Material.getMaterial(mat.toUpperCase());
-			if (Material.getMaterial(mat.replace(" ", "_")) != null)
-				return Material.getMaterial(mat.replace(" ", "_"));
-		}
-		if (checkPlugin("Essentials", true)) {
-			com.earth2me.essentials.Essentials ess = (com.earth2me.essentials.Essentials) getPlugin("Essentials", true);
-			try {
-				return ess == null ? null : ess.getItemDb().get(mat).getType();
-			} catch (Exception e) { return null; }
-		}
-		return null;
-	}
+	public static Material getMaterial(String mat) { return Items.itemByString(mat).getType(); }
 	/**
 	 * Attempts to parse a enchantment name or number to an Enchantment. Can use Essentials's enchant aliases if it's initialized
 	 * @param ench The name or number to search for
@@ -270,7 +286,7 @@ public final class MiscUtils {
 	public static Enchantment getEnchant(String ench) {
 		if (Enchantment.getByName(ench.toUpperCase()) != null) return Enchantment.getByName(ench);
 		if (TypeUtils.isInteger(ench) && Enchantment.getById(Integer.parseInt(ench)) != null) return Enchantment.getById(Integer.parseInt(ench));
-		if (checkPlugin("Essentials", true)) { try { return com.earth2me.essentials.Enchantments.getByName(ench); } catch (Exception e) { return null; } }
+		for (Enchantment e : enchantAliases.keySet()) if (eq(ench, enchantAliases.get(e))) return e;
 		return null;
 	}
 	/**
@@ -497,10 +513,10 @@ public final class MiscUtils {
 	/**
 	 * Checks if the Material allows a user to pass through it
 	 * @param mat The Material to check
-	 * @return Returns true if the Material allows a user to pass through it, false otherwise
+	 * @return Returns true if the Material allows a user to walk through the block, false otherwise
 	 */
 	public static boolean isHollow(Material mat) {
-		return Arrays.asList(passThroughMats).contains(mat);
+		return Arrays.asList(permeableMats).contains(mat);
 	}
 
 	/**

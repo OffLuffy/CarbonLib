@@ -2,8 +2,8 @@ package net.teamcarbon.carbonlib.UUIDUtils;
 
 import java.util.*;
 
-import net.teamcarbon.carbonlib.CarbonException;
-import net.teamcarbon.carbonlib.Log;
+import net.teamcarbon.carbonlib.Misc.CarbonException;
+import net.teamcarbon.carbonlib.Misc.Log;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
