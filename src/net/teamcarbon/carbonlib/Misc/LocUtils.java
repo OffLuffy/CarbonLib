@@ -114,6 +114,7 @@ public final class LocUtils {
 	 * or null if it fails to parse (which should only happen if there's somehow no worlds)
 	 */
 	public static Location fromStr(String locStr) {
+		if (locStr == null || locStr.isEmpty()) return null;
 		String[] s = locStr.split(",");
 		World w = Bukkit.getWorld(s[0]);
 		if (w == null) { try { w = Bukkit.getWorlds().get(0); } catch (Exception ignore) {} }

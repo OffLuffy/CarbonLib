@@ -1,5 +1,6 @@
 package net.teamcarbon.carbonlib.Misc;
 
+import net.milkbowl.vault.item.ItemInfo;
 import net.milkbowl.vault.item.Items;
 import net.milkbowl.vault.permission.Permission;
 import net.teamcarbon.carbonlib.CarbonLib;
@@ -29,7 +30,9 @@ public final class MiscUtils {
 			RED_MUSHROOM, TORCH, REDSTONE_WIRE, SEEDS, SIGN_POST, WOODEN_DOOR, LADDER, RAILS, WALL_SIGN, LEVER, STONE_PLATE,
 			IRON_DOOR_BLOCK, WOOD_PLATE, REDSTONE_TORCH_OFF, REDSTONE_TORCH_ON, STONE_BUTTON, SNOW, SUGAR_CANE_BLOCK,
 			DIODE_BLOCK_OFF, DIODE_BLOCK_ON, PUMPKIN_STEM, MELON_STEM, VINE, FENCE_GATE, WATER_LILY, NETHER_WARTS,
-			CARPET, ACTIVATOR_RAIL
+			CARPET, ACTIVATOR_RAIL, SIGN, BANNER, STANDING_BANNER, WALL_BANNER, WATER, STATIONARY_WATER, LAVA, STATIONARY_LAVA,
+			WEB, FIRE, REDSTONE, WOOD_BUTTON, REDSTONE_COMPARATOR_OFF, REDSTONE_COMPARATOR_ON, TRIPWIRE, TRIPWIRE_HOOK,
+			CARROT, CROPS, POTATO, FLOWER_POT, DOUBLE_PLANT
 	};
 
 	// Of the Materials that are permeable, ones that allow the player to stand on them and covers whole square
@@ -98,32 +101,24 @@ public final class MiscUtils {
 	 * @param w The World to check permissions in
 	 * @param player The Player to check
 	 * @param permissions The list of perms to check
-	 * @return Returns true if the player has any of the perms
+	 * @return Returns true if the player has any of the perms, false otherwise or if the World can't be resolved
 	 */
 	public static boolean perm(World w, OfflinePlayer player, String ... permissions) {
+		if (w == null) w = (player.isOnline() ? ((Player) player).getWorld() : Bukkit.getWorlds().get(0));
+		if (w == null || perms == null || player == null) return false;
 		for (String p : permissions)
-			if (perms != null && player != null && p != null)
-				if (perms.playerHas(w.getName(), player, p))
-					return true;
+			if (p != null && perms.playerHas(w.getName(), player, p))
+				return true;
 		return false;
 	}
 	/**
-	 * Checks if the Player has any of the listed perms, assuming the default world if the player isn't online
+	 * Checks if the Player has any of the listed perms in their current world or default world if they're offline
 	 * @param player The Player to check
 	 * @param permissions The list of perms to check
 	 * @return Returns true if the player has any of the perms, false if not or if the World is somehow null
 	 */
-	public static boolean perm(OfflinePlayer player, String ... permissions) { return perm(player, null, permissions); }
-	/**
-	 * Checks if the Player has any of the listed perms, assuming the default world if the player isn't online
-	 * @param player The Player to check
-	 * @param world The World to fetch the Player's permissions for
-	 * @param permissions The list of perms to check
-	 * @return Returns true if the player has any of the perms, false if not or if the World is somehow null
-	 */
-	public static boolean perm(OfflinePlayer player, World world, String ... permissions) {
-		if (world == null) world =(player.isOnline() ? ((Player) player).getWorld() : Bukkit.getWorlds().get(0));
-		return world != null && perm(world, player, permissions);
+	public static boolean perm(OfflinePlayer player, String ... permissions) {
+		return player.isOnline() ? perm((Player) player, permissions) : perm(null, player, permissions);
 	}
     /**
      * Checks if the CommandSender has any of the listed perms
@@ -148,9 +143,7 @@ public final class MiscUtils {
 	 * @param msg The message to broadcast
 	 */
 	public static void permBroadcast(String perm, String msg) {
-		for (Player p : Bukkit.getOnlinePlayers())
-			if (perm(p, perm))
-				p.sendMessage(msg);
+		for (Player p : Bukkit.getOnlinePlayers()) permSend(p, perm, msg);
 	}
 	/**
 	 * Broadcasts a message to all online players with the given permission
@@ -159,9 +152,7 @@ public final class MiscUtils {
 	 * @param msg The message to broadcast
 	 */
 	public static void permBroadcast(String perm, List<? extends Player> avoid, String msg) {
-		for (Player p : Bukkit.getOnlinePlayers())
-			if (perm(p, perm) && !avoid.contains(p))
-				p.sendMessage(msg);
+		for (Player p : Bukkit.getOnlinePlayers()) if (perm(p, perm) && !avoid.contains(p)) p.sendMessage(msg);
 	}
 	/**
 	 * Sends a message to the specified Player if they have the specified permission
@@ -275,8 +266,10 @@ public final class MiscUtils {
 	 * @param mat The name or number to search for
 	 * @return Returns a Material object if found, null otherwise
 	 */
-	@SuppressWarnings({"deprecation"})
-	public static Material getMaterial(String mat) { return Items.itemByString(mat).getType(); }
+	public static Material getMaterial(String mat) {
+		ItemInfo ii = Items.itemByString(mat);
+		return ii == null ? null : ii.getType();
+	}
 	/**
 	 * Attempts to parse a enchantment name or number to an Enchantment. Can use Essentials's enchant aliases if it's initialized
 	 * @param ench The name or number to search for
@@ -515,7 +508,7 @@ public final class MiscUtils {
 	 * @param mat The Material to check
 	 * @return Returns true if the Material allows a user to walk through the block, false otherwise
 	 */
-	public static boolean isHollow(Material mat) {
+	public static boolean isPermeable(Material mat) {
 		return Arrays.asList(permeableMats).contains(mat);
 	}
 
@@ -525,6 +518,6 @@ public final class MiscUtils {
 	 * @return Returns true if the Material allows the user to stand on it, false otherwise
 	 */
 	public static boolean isSupporting(Material mat) {
-		return !isHollow(mat) || Arrays.asList(supportingMats).contains(mat);
+		return !isPermeable(mat) || Arrays.asList(supportingMats).contains(mat);
 	}
 }
