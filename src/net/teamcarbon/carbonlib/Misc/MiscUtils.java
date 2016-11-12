@@ -442,7 +442,7 @@ public final class MiscUtils {
 	 */
 	public static boolean addToStringList(FileConfiguration fc, String path, Object value) {
 		boolean added = false;
-		List<String> list = fc.contains(path)?fc.getStringList(path):new ArrayList<String>();
+		List<String> list = fc.contains(path)?fc.getStringList(path): new ArrayList<>();
 		if (!list.contains(value.toString())) { list.add(value.toString()); added = true; }
 		fc.set(path, list);
 		return added;
@@ -455,7 +455,7 @@ public final class MiscUtils {
 	 */
 	public static boolean removeFromStringList(FileConfiguration fc, String path, Object value) {
 		boolean removed = false;
-		List<String> list = fc.contains(path)?fc.getStringList(path):new ArrayList<String>();
+		List<String> list = fc.contains(path)?fc.getStringList(path): new ArrayList<>();
 		if (list.contains(value.toString())) { list.remove(value.toString()); removed = true; }
 		fc.set(path, list);
 		return removed;
@@ -498,13 +498,14 @@ public final class MiscUtils {
 		if (array == null) return "";
 		if (fromIndex < 0) { fromIndex = 0; }
 		if (toIndex > array.length-1) { toIndex = array.length-1; }
+		array = Arrays.copyOfRange(array, fromIndex, toIndex);
 		String newString = "";
 		boolean first = true;
-		for (int i = fromIndex; i <= toIndex; i++) {
-			String word = array[i] == null ? "" : array[i].toString();
-			if (array[i] instanceof String) word = (String) array[i];
-			else if (array[i] instanceof Player) word = ((Player) array[i]).getName();
-			else if (array[i] instanceof World) word = ((World) array[i]).getName();
+		for (Object o : array) {
+			String word = o == null ? "" : o.toString();
+			if (o instanceof String) word = (String) o;
+			else if (o instanceof Player) word = ((Player) o).getName();
+			else if (o instanceof World) word = ((World) o).getName();
 			newString += (first ? "" : delimiter) + word;
 			first = false;
 		}
@@ -684,7 +685,7 @@ public final class MiscUtils {
 		//byte[] encodedData = Base64.encodeBase64(String.format("{textures:{SKIN:{url:\"%s\"}}}", url).getBytes());
 		byte[] encoded = Base64.getEncoder().encode(String.format("{textures:{SKIN:{url:\"%s\"}}}", url).getBytes());
 		profile.getProperties().put("textures", new Property("textures", new String(encoded)));
-		Field profileField = null;
+		Field profileField;
 		try
 		{
 			profileField = headMeta.getClass().getDeclaredField("profile");
