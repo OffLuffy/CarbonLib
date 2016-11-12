@@ -2,8 +2,8 @@ package net.teamcarbon.carbonlib.UUIDUtils;
 
 import java.util.*;
 
+import net.teamcarbon.carbonlib.CarbonLib;
 import net.teamcarbon.carbonlib.Misc.CarbonException;
-import net.teamcarbon.carbonlib.Misc.Log;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -13,7 +13,7 @@ import org.bukkit.entity.Player;
  */
 @SuppressWarnings({"UnusedDeclaration", "deprecation"})
 public final class UUIDLib {
-	private static HashMap<String, UUID> storedIds = new HashMap<String, UUID>();
+	private static HashMap<String, UUID> storedIds = new HashMap<>();
 	/**
 	 * Stores the given id and player name
 	 * @param pl The player name associated with the id
@@ -21,7 +21,7 @@ public final class UUIDLib {
 	 */
 	public static void store(String pl, UUID id) {
 		if (storedIds.containsValue(id))
-			for (String p : (new HashMap<String, UUID>(storedIds)).keySet())
+			for (String p : (new HashMap<>(storedIds)).keySet())
 				if (storedIds.get(p).equals(id))
 					storedIds.remove(p);
 		storedIds.put(pl, id);
@@ -64,36 +64,6 @@ public final class UUIDLib {
 	 */
 	public static String idToString(UUID id) { return id.toString().toLowerCase().replace("-", ""); }
 	/**
-	 * Attempts to fetch a player name associated with the given id
-	 * @param id the id to search for
-	 * @return String of the player's name if found, null otherwise
-	 */
-	public static String nameFromID(String id) { return nameFromID(toUUID(id)); }
-	/**
-	 * Attempts to fetch a player name associated with the given id
-	 * @param id the id to search for
-	 * @return String of the player's name if found, null otherwise
-	 */
-	public static String nameFromID(UUID id) {
-		if (storedIds.containsValue(id))
-			for (String p : (new HashMap<String, UUID>(storedIds)).keySet())
-				if (storedIds.get(p).equals(id))
-					return p;
-		for (Player pl : Bukkit.getOnlinePlayers())
-			if (pl.getUniqueId().equals(id))
-				return pl.getName();
-		try {
-			String name = NameFetcher.getNameOf(id);
-			storedIds.put(name, id);
-			return name;
-		} catch (Exception ex) {
-			Log.warn("Error fetching name from UUID, details:");
-			CarbonException ce = new CarbonException(ex);
-			ce.printStackTrace();
-			return null;
-		}
-	}
-	/**
 	 * Fetches a UUID associated with the given Player object, alias for org.bukkit.entity.player#getUniqueID()
 	 * @param player the Player to get the UUID from
 	 * @return The player's associated UUID
@@ -116,8 +86,8 @@ public final class UUIDLib {
 			storedIds.put(name, uuid);
 			return uuid;
 		} catch (Exception e) {
-			Log.warn("Failed to fetch UUID for " + name + ", details:");
-			CarbonException ce = new CarbonException(e);
+			CarbonLib.log.warn("Failed to fetch UUID for " + name + ", details:");
+			CarbonException ce = new CarbonException(CarbonLib.inst, e);
 			ce.printStackTrace();
 		}
 		return null;
