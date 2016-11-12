@@ -24,4 +24,5 @@ public class LagMeter implements Runnable {
 		TICKS[(TICK_COUNT % TICKS.length)] = System.currentTimeMillis();
 		TICK_COUNT++;
 	}
+	public static boolean initialized() { return TICK_COUNT > 0; }
 }

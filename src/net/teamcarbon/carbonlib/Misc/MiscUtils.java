@@ -1,5 +1,7 @@
 package net.teamcarbon.carbonlib.Misc;
 
+import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.properties.Property;
 import net.milkbowl.vault.item.ItemInfo;
 import net.milkbowl.vault.item.Items;
 import net.milkbowl.vault.permission.Permission;
@@ -10,10 +12,21 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.plugin.Plugin;
 
-import java.util.*;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.UUID;
 
 import static org.bukkit.Material.*;
 
@@ -41,7 +54,7 @@ public final class MiscUtils {
 			POWERED_RAIL, RAILS, SNOW, CARPET, ACTIVATOR_RAIL, DETECTOR_RAIL
 	};
 
-	private static final HashMap<Enchantment, String[]> enchantAliases = new HashMap<Enchantment, String[]>();
+	private static final HashMap<Enchantment, String[]> enchantAliases = new HashMap<>();
 
     private static Permission perms;
 
@@ -91,9 +104,10 @@ public final class MiscUtils {
      */
     public static boolean perm(Player player, String ... permissions) {
         for (String p : permissions)
-            if (perms != null && player != null && p != null)
-                if (perms.playerHas(player, p))
-                    return true;
+            if (player != null && p != null)
+                if (perms != null) {
+					return perms.playerHas(player, p);
+				} else if (player.hasPermission(p)) return true;
         return false;
     }
 	/**
@@ -190,7 +204,6 @@ public final class MiscUtils {
 	 * @return Returns true if the query matches any String from matches (case-insensitive)
 	 */
 	public static boolean eq(String query, List<String> matches) { return eq(query, matches.toArray(new String[matches.size()])); }
-
 	/**
 	 * Checks if the query starts with any of the provided Strings in matches (case-insensitive)
 	 * @param query The String to check
@@ -204,6 +217,7 @@ public final class MiscUtils {
 	 * @param query An array of Objects to compare the obj against
 	 * @return Returns true if 'obj' is equal to any Object in the 'query' array
 	 */
+	@SafeVarargs
 	public static <T> boolean objEq(T obj, T ... query) {
 		for (T q : query) { if ((obj.getClass().isEnum() && obj == q) || obj.equals(q)) { return true; } }
 		return false;
@@ -214,17 +228,33 @@ public final class MiscUtils {
 	 * @param query The list of objects to be compared to the initial object
 	 * @return Returns true if 'obj' is exactly equal (== comparison) to any object in 'query'
 	 */
+	@SafeVarargs
 	public static <T> boolean exactEq(T obj, T ... query) {
 		for (T b : query) { if (obj == b) return true; }
 		return false;
 	}
-
 	/**
 	 * Short-hand method to capitalize the first letter of a String
 	 * @param word The String to be capitalized
-	 * @return The String with the first letter capitalized
+	 * @param lowerOthers Whether or not to convert all other letters to lower case
+	 * @return Returns the String with the first letter capitalized
 	 */
-	public static String capFirst(String word) { return (word.isEmpty()?"":(word.charAt(0)+"").toUpperCase())+((word.length()>1)?word.substring(1).toLowerCase():""); }
+	public static String capFirst(String word, boolean lowerOthers) {
+		if (word.isEmpty()) return "";
+		if (word.length() == 1) return word.toUpperCase();
+		return (word.charAt(0)+"").toUpperCase() + ((lowerOthers) ? word.substring(1).toLowerCase() : word.substring(1));
+	}
+	/**
+	 * Short-hand method to capitalize the first letter of every word in a String
+	 * @param words The String of words to be capitalized
+	 * @param lowerOthers Whether or not to convert all other letters to lower case
+	 * @return Returns the String after the first letter of each word is capitalized
+	 */
+	public static String capAllFirst(String words, boolean lowerOthers) {
+		String[] wa = words.split(" "), wa2 = new String[wa.length];
+		for (int i = 0; i < wa.length; i++) { wa2[i] = capFirst(wa[i], lowerOthers); }
+		return stringFromArray(" ", wa2);
+	}
 	/**
 	 * Replaces all instances of key values in 'rep' in 'subject' with the associated values in the HashMap
 	 * @param subject The String to search and replace within
@@ -244,7 +274,7 @@ public final class MiscUtils {
 	 * @return Returns a HashMap&lt;String, String&gt; filled with the given Strings
 	 */
 	public static HashMap<String,String> quickHash(String ... st) {
-		HashMap<String,String> ret = new HashMap<String, String>();
+		HashMap<String,String> ret = new HashMap<>();
 		for (int i = 0; i < st.length; i+=2)
 			if (st.length > i+1)
 				ret.put(st[i], st[i+1]);
@@ -255,8 +285,9 @@ public final class MiscUtils {
 	 * @param stuff The items being translated into a List
 	 * @return Returns a List of the specified objects
 	 */
+	@SafeVarargs
 	public static <T> List<T> quickList(T ... stuff) {
-		List<T> ret = new ArrayList<T>();
+		List<T> ret = new ArrayList<>();
 		Collections.addAll(ret, stuff);
 		return ret;
 	}
@@ -369,7 +400,7 @@ public final class MiscUtils {
 	 */
 	public static void teleport(Entity ent, Location loc) {
 		if (ent.isDead()) return;
-		final List<Entity> passengers = new ArrayList<Entity>();
+		final List<Entity> passengers = new ArrayList<>();
 		loadChunks(loc, 3);
 		if (ent.getPassenger() != null) {
 			Entity v = ent;
@@ -519,5 +550,160 @@ public final class MiscUtils {
 	 */
 	public static boolean isSupporting(Material mat) {
 		return !isPermeable(mat) || Arrays.asList(supportingMats).contains(mat);
+	}
+
+	/**
+	 * Replaces supported variables with appropriate values
+	 * @param msg The message containing variables to be replaced
+	 * @param pl Player whose data to use for variable replacements
+	 * @return Returns a String with all variables in the original message replaced
+	 */
+	public static String repVars(String msg, Player pl) {
+		if (msg == null || msg.isEmpty()) return "";
+		msg = Clr.trans(msg);
+		if (pl == null) return msg;
+
+		// User Identity
+		if (msg.contains("{NAME}")) msg = msg.replace("{NAME}", pl.getName());
+		if (msg.contains("{DISPNAME}")) msg = msg.replace("{DISPNAME}", pl.getDisplayName());
+		if (msg.contains("{UUID}")) msg = msg.replace("{UUID}", pl.getUniqueId().toString());
+		if (msg.contains("{IP}")){
+			String ip = pl.getAddress() == null ? "" : pl.getAddress().toString();
+			if (!ip.isEmpty()) {
+				if (ip.contains("/")) ip = ip.replace("/", ""); // Remove leading slash
+				if (ip.contains(":")) ip = ip.substring(0, ip.indexOf(":")); // Remove port and port delimiter
+			}
+			msg = msg.replace("{IP}", ip);
+		}
+
+		// User Stats
+		if (msg.contains("{HEALTH}")) msg = msg.replace("{HEALTH}", sformat("%.0f", pl.getHealth()));
+		if (msg.contains("{MAXHEALTH}")) msg = msg.replace("{MAXHEALTH}", sformat("%.0f", pl.getMaxHealth()));
+		if (msg.contains("{LEVEL}")) msg = msg.replace("{LEVEL}", sformat("%d", pl.getLevel()));
+		if (msg.contains("{DAYSLIVED}")) msg = msg.replace("{DAYSLIVED}", sformat("%d", pl.getTicksLived() / 24000));
+
+		// Server Info
+		if (msg.contains("{TIME}")) msg = msg.replace("{TIME}", ticksToTime(pl.getWorld().getTime()));
+		if (msg.contains("{TPS}")) msg = msg.replace("{TPS}", sformat("%.1f", LagMeter.getTPS()));
+
+		// Location Info
+		if (msg.contains("{WORLD}")) msg = msg.replace("{WORLD}", pl.getWorld().getName());
+		if (msg.contains("{X}")) msg = msg.replace("{X}", sformat("%d", pl.getLocation().getBlockX()));
+		if (msg.contains("{Y}")) msg = msg.replace("{Y}", sformat("%d", pl.getLocation().getBlockY()));
+		if (msg.contains("{Z}")) msg = msg.replace("{Z}", sformat("%d", pl.getLocation().getBlockZ()));
+		if (msg.contains("{PITCH}")) msg = msg.replace("{PITCH}", sformat("%.0f", pl.getLocation().getPitch()));
+		if (msg.contains("{YAW}")) msg = msg.replace("{YAW}", sformat("%.0f", pl.getLocation().getYaw()));
+
+		// Directional Info
+		if (msg.contains("{FACING}")) msg = msg.replace("{FACING}", LocUtils.getCardinalDir(pl, false, false, false));
+		if (msg.contains("{FACING_SHORT}")) msg = msg.replace("{FACING_SHORT}", LocUtils.getCardinalDir(pl, true, false, false));
+		if (msg.contains("{FACING_SEC}")) msg = msg.replace("{FACING_SEC}", LocUtils.getCardinalDir(pl, false, false, true));
+		if (msg.contains("{FACING_SHORT_SEC}")) msg = msg.replace("{FACING_SHORT_SEC}", LocUtils.getCardinalDir(pl, true, false, true));
+		if (msg.contains("{COMPASS}")) msg = msg.replace("{COMPASS}", LocUtils.getCardinalDir(pl, false, true, false));
+		if (msg.contains("{COMPASS_SHORT}")) msg = msg.replace("{COMPASS_SHORT}", LocUtils.getCardinalDir(pl, true, true, false));
+		if (msg.contains("{COMPASS_SEC}")) msg = msg.replace("{COMPASS_SEC}", LocUtils.getCardinalDir(pl, false, true, true));
+		if (msg.contains("{COMPASS_SHORT_SEC}")) msg = msg.replace("{COMPASS_SHORT_SEC}", LocUtils.getCardinalDir(pl, true, true, true));
+
+		return msg;
+	}
+
+	/**
+	 * Chooses the singular or plural form of a the specified words depending on the value of amnt (1 = singular, plural otherwise)
+	 * @param amnt The amount
+	 * @param singular The singular form of the word
+	 * @param plural The plural form of the word
+	 * @return Returns the singular form of the word if amnt is 1 and the plural form otherwise
+	 */
+	public static String plural(int amnt, String singular, String plural) { return amnt == 1 ? singular : plural; }
+
+	/**
+	 * Checks if the specified Player has access to the given Location<br>
+	 *     Considers: GriefPrevention, WorldGuard
+	 * @param loc The Location to check
+	 * @param pl The Player to check
+	 * @return Returns true if the Player has access to the given Location, false otherwise
+	 */
+	public static boolean accessCheck(Location loc, Player pl, TrustLevel gptl) {
+		boolean allow = true;
+		if (MiscUtils.checkPlugin("GriefPrevention", true)) {
+			me.ryanhamshire.GriefPrevention.DataStore ds = me.ryanhamshire.GriefPrevention.GriefPrevention.instance.dataStore;
+			me.ryanhamshire.GriefPrevention.Claim claim = ds.getClaimAt(loc, false, null);
+			if (claim != null) {
+				if (gptl == null) gptl = TrustLevel.BUILD;
+				switch (gptl) {
+					case BUILD: if (claim.allowBuild(pl, Material.AIR) != null) allow = false; break;
+					case CONTAINER: if (claim.allowContainers(pl) != null) allow = false; break;
+					case ACCESS: if (claim.allowAccess(pl) != null) allow = false; break;
+				}
+			}
+		}
+		if (MiscUtils.checkPlugin("WorldGuard", true)) {
+			Plugin plugin = Bukkit.getPluginManager().getPlugin("WorldGuard");
+			if (plugin != null) {
+				com.sk89q.worldguard.bukkit.WorldGuardPlugin wgp = (com.sk89q.worldguard.bukkit.WorldGuardPlugin) plugin;
+				if (!wgp.canBuild(pl, loc)) allow = false;
+			}
+		}
+		return allow;
+	}
+	public enum TrustLevel { BUILD, CONTAINER, ACCESS }
+
+	/**
+	 * Attempts to fetch an Entity that the specified Player is looking at
+	 * @param player The Player whom is looking at an Entity
+	 * @return Returns the Entity the Player is looking at or null if none is found
+	 */
+	public static Entity getTarget(final Player player) {
+		assert player != null;
+		Entity target = null;
+		double targetDistanceSquared = 0;
+		final double radiusSquared = 1;
+		final org.bukkit.util.Vector l = player.getEyeLocation().toVector(), n = player.getLocation().getDirection().normalize();
+		final double cos45 = Math.cos(Math.PI / 4);
+		for (final LivingEntity other : player.getWorld().getEntitiesByClass(LivingEntity.class)) {
+			if (other == player)
+				continue;
+			if (target == null || targetDistanceSquared > other.getLocation().distanceSquared(player.getLocation())) {
+				final org.bukkit.util.Vector t = other.getLocation().add(0, 1, 0).toVector().subtract(l);
+				if (n.clone().crossProduct(t).lengthSquared() < radiusSquared && t.normalize().dot(n) >= cos45) {
+					target = other;
+					targetDistanceSquared = target.getLocation().distanceSquared(player.getLocation());
+				}
+			}
+		}
+		return target;
+	}
+
+	public static ItemStack getSkull(String url) {
+		ItemStack head = new ItemStack(Material.SKULL_ITEM, 1, (short)3);
+		if(url.isEmpty())return head;
+
+
+		SkullMeta headMeta = (SkullMeta) head.getItemMeta();
+		GameProfile profile = new GameProfile(UUID.randomUUID(), null);
+		//byte[] encodedData = Base64.encodeBase64(String.format("{textures:{SKIN:{url:\"%s\"}}}", url).getBytes());
+		byte[] encoded = Base64.getEncoder().encode(String.format("{textures:{SKIN:{url:\"%s\"}}}", url).getBytes());
+		profile.getProperties().put("textures", new Property("textures", new String(encoded)));
+		Field profileField = null;
+		try
+		{
+			profileField = headMeta.getClass().getDeclaredField("profile");
+			profileField.setAccessible(true);
+			profileField.set(headMeta, profile);
+		}
+		catch (NoSuchFieldException | IllegalArgumentException | IllegalAccessException e)
+		{
+			e.printStackTrace();
+		}
+		head.setItemMeta(headMeta);
+		return head;
+	}
+
+	private static String sformat(String pat, Object ... objects) { return String.format(Locale.ENGLISH, pat, objects); }
+	private static String ticksToTime(long ticks) {
+		ticks += 6000; // Offset 0 ticks to = 6AM
+		int hours = (int)(ticks / 1000), minutes = (int)((ticks % 1000) / 16.66);
+		return (hours > 12 ? hours > 24 ? hours - 24 : hours-12 : hours) + ":"
+				+ (minutes < 10 ? "0" : "") + minutes + (hours >= 12 && hours < 24 ? " PM" : " AM");
 	}
 }

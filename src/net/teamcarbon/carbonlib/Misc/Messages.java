@@ -17,7 +17,7 @@ import java.util.Locale;
  */
 @SuppressWarnings("UnusedDeclaration")
 public final class Messages {
-	private static HashMap<String, String> customMessages = new HashMap<String, String>();
+	private static HashMap<String, String> customMessages = new HashMap<>();
 
 	/**
 	 * Convenience enum, shorter than ChatColor and allows me to store custom color combinations

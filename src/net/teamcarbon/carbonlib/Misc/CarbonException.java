@@ -13,8 +13,8 @@ import java.util.List;
 @SuppressWarnings("UnusedDeclaration")
 public final class CarbonException extends RuntimeException {
 
-	private static HashMap<Plugin, String> pluginScopes = new HashMap<Plugin, String>();
-	private List<StackTraceElement> customElements = new ArrayList<StackTraceElement>();
+	private static HashMap<Plugin, String> pluginScopes = new HashMap<>();
+	private List<StackTraceElement> customElements = new ArrayList<>();
 	private Plugin plugin;
 
 	public CarbonException(Plugin plugin, String msg) {
@@ -49,7 +49,7 @@ public final class CarbonException extends RuntimeException {
 	 */
 	private void cleanStack(String scope) {
 		if (scope == null || scope.isEmpty()) return;
-		List<StackTraceElement> clean = new ArrayList<StackTraceElement>();
+		List<StackTraceElement> clean = new ArrayList<>();
 		for (StackTraceElement ste : customElements) if(ste.getClassName().contains(scope)) clean.add(ste);
 		customElements.clear();
 		customElements.addAll(clean);
@@ -70,4 +70,6 @@ public final class CarbonException extends RuntimeException {
 
 	public static void setGlobalPluginScope(Plugin plugin, String scope) { pluginScopes.put(plugin, scope); }
 	public static void removeGlobalPluginScope(Plugin plugin) { if (pluginScopes.containsKey(plugin)) pluginScopes.remove(plugin); }
+
+	public static void print(Plugin p, Exception e) { (new CarbonException(p, e)).printStackTrace(); }
 }

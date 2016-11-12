@@ -18,12 +18,12 @@ import java.util.List;
 @SuppressWarnings("UnusedDeclaration")
 public final class LocUtils {
 
-	public static HashMap<Player, Location> lastLoc = new HashMap<Player, Location>();
+	public static HashMap<Player, Location> lastLoc = new HashMap<>();
 
 	/**
 	 * Removes all entries from the cache of player locations used to simplify movement listeners
 	 */
-	public static void resetLastLocs() { if (lastLoc == null) lastLoc = new HashMap<Player, Location>(); else lastLoc.clear(); }
+	public static void resetLastLocs() { if (lastLoc == null) lastLoc = new HashMap<>(); else lastLoc.clear(); }
 
 	/**
 	 * Indicates if the point specified is within the boundaries indicated with the lesser and greater corners
@@ -89,7 +89,7 @@ public final class LocUtils {
 	 * This should only return null if the Location fails to format (there are no worlds on the server).
 	 */
 	public static String toStr(Location loc, boolean blockCoords) {
-		World w = loc!=null?loc.getWorld():null;
+		World w = loc!=null ? loc.getWorld() : null;
 		if (w == null) { try { w = Bukkit.getWorlds().get(0); } catch (Exception ignore) {} }
 		if (w == null) {
 			CarbonLib.log.warn("Failed to format Location! There doesn't appear to be any worlds on this server");
@@ -99,12 +99,12 @@ public final class LocUtils {
 		float yaw = 0, pitch = 0;
 		if (loc != null) {
 			x = blockCoords?loc.getBlockX():loc.getX();
-			y = blockCoords?loc.getBlockX():loc.getY();
-			z = blockCoords?loc.getBlockX():loc.getZ();
+			y = blockCoords?loc.getBlockY():loc.getY();
+			z = blockCoords?loc.getBlockZ():loc.getZ();
 			yaw = loc.getYaw();
 			pitch = loc.getPitch();
-		} else { CarbonLib.log.debug("Location being formattec is null. Using default values."); }
-		return w.getName() + "," + x + "," + y + "," + z + "," + yaw + "," + pitch;
+		} else { CarbonLib.log.debug("Location being formatted is null. Using default values."); }
+		return w.getName() + "," + (blockCoords?((int)x + "," + (int)y + "," + (int)z):(x + "," + y + "," + z)) + "," + yaw + "," + pitch;
 	}
 
 	/**
@@ -256,7 +256,7 @@ public final class LocUtils {
 	 */
 	public static Entity[]  getNearbyEntities(Location l, int radius){
 		int chunkRadius = radius < 16 ? 1 : (radius - (radius % 16))/16;
-		List<Entity> radiusEntities = new ArrayList<Entity>();
+		List<Entity> radiusEntities = new ArrayList<>();
 		for (int chX = 0 -chunkRadius; chX <= chunkRadius; chX ++){
 			for (int chZ = 0 -chunkRadius; chZ <= chunkRadius; chZ++){
 				int x=(int) l.getX(),y=(int) l.getY(),z=(int) l.getZ();
