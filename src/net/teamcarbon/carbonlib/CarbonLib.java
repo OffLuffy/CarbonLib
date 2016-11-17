@@ -29,7 +29,7 @@ public class CarbonLib extends JavaPlugin {
 	public void onEnable() {
 		inst = this;
 		CarbonException.setGlobalPluginScope(this, "net.teamcarbon");
-		log = new Log(this, null);
+		log = new Log(this, "enable-debug-messages");
 
 		Bukkit.getScheduler().runTaskLater(this, new Runnable() {
 			@Override
@@ -67,5 +67,7 @@ public class CarbonLib extends JavaPlugin {
 		if (cp != null) chat = cp.getProvider();
 		return chat != null;
 	}
+
+	public static List<CarbonPlugin> getCarbonPlugins() { return new ArrayList<>(carbonPlugins); }
 
 }
