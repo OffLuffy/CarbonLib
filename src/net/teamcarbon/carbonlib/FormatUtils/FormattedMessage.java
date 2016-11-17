@@ -14,12 +14,12 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import net.minecraft.server.v1_10_R1.IChatBaseComponent.ChatSerializer;
-import net.minecraft.server.v1_10_R1.NBTTagCompound;
-import net.minecraft.server.v1_10_R1.PacketPlayOutChat;
-import org.bukkit.craftbukkit.v1_10_R1.CraftStatistic;
-import org.bukkit.craftbukkit.v1_10_R1.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_10_R1.inventory.CraftItemStack;
+import net.minecraft.server.v1_11_R1.IChatBaseComponent.ChatSerializer;
+import net.minecraft.server.v1_11_R1.NBTTagCompound;
+import net.minecraft.server.v1_11_R1.PacketPlayOutChat;
+import org.bukkit.craftbukkit.v1_11_R1.CraftStatistic;
+import org.bukkit.craftbukkit.v1_11_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_11_R1.inventory.CraftItemStack;
 
 @SuppressWarnings("UnusedDeclaration")
 public class FormattedMessage {
@@ -81,7 +81,7 @@ public class FormattedMessage {
 	}
 
 	public FormattedMessage achievementTooltip(final Achievement which) {
-		net.minecraft.server.v1_10_R1.Achievement nms = CraftStatistic.getNMSAchievement(which);
+		net.minecraft.server.v1_11_R1.Achievement nms = CraftStatistic.getNMSAchievement(which);
 		return achievementTooltip(nms.name);
 	}
 
@@ -90,7 +90,7 @@ public class FormattedMessage {
 		if (type != Type.UNTYPED) {
 			throw new IllegalArgumentException("That statistic requires an additional " + type + " parameter!");
 		}
-		net.minecraft.server.v1_10_R1.Statistic nms = CraftStatistic.getNMSStatistic(which);
+		net.minecraft.server.v1_11_R1.Statistic nms = CraftStatistic.getNMSStatistic(which);
 		return achievementTooltip(nms.name);
 	}
 
@@ -102,7 +102,7 @@ public class FormattedMessage {
 		if ((type == Type.BLOCK && item.isBlock()) || type == Type.ENTITY) {
 			throw new IllegalArgumentException("Wrong parameter type for that statistic - needs " + type + "!");
 		}
-		net.minecraft.server.v1_10_R1.Statistic nms = CraftStatistic.getMaterialStatistic(which, item);
+		net.minecraft.server.v1_11_R1.Statistic nms = CraftStatistic.getMaterialStatistic(which, item);
 		return achievementTooltip(nms.name);
 	}
 
@@ -114,7 +114,7 @@ public class FormattedMessage {
 		if (type != Type.ENTITY) {
 			throw new IllegalArgumentException("Wrong parameter type for that statistic - needs " + type + "!");
 		}
-		net.minecraft.server.v1_10_R1.Statistic nms = CraftStatistic.getEntityStatistic(which, entity);
+		net.minecraft.server.v1_11_R1.Statistic nms = CraftStatistic.getEntityStatistic(which, entity);
 		return achievementTooltip(nms.name);
 	}
 

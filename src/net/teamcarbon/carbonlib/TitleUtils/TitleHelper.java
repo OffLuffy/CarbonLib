@@ -1,14 +1,14 @@
 package net.teamcarbon.carbonlib.TitleUtils;
 
-import net.minecraft.server.v1_10_R1.IChatBaseComponent;
-import net.minecraft.server.v1_10_R1.Packet;
-import net.minecraft.server.v1_10_R1.PacketPlayOutChat;
-import net.minecraft.server.v1_10_R1.PacketPlayOutPlayerListHeaderFooter;
-import net.minecraft.server.v1_10_R1.PacketPlayOutTitle;
+import net.minecraft.server.v1_11_R1.IChatBaseComponent;
+import net.minecraft.server.v1_11_R1.Packet;
+import net.minecraft.server.v1_11_R1.PacketPlayOutChat;
+import net.minecraft.server.v1_11_R1.PacketPlayOutPlayerListHeaderFooter;
+import net.minecraft.server.v1_11_R1.PacketPlayOutTitle;
 import net.teamcarbon.carbonlib.FormatUtils.FormattedMessage;
 import net.teamcarbon.carbonlib.Misc.Messages.Clr;
 import net.teamcarbon.carbonlib.Misc.MiscUtils;
-import org.bukkit.craftbukkit.v1_10_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_11_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 
