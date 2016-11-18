@@ -43,9 +43,14 @@ public abstract class CarbonPlugin extends JavaPlugin {
 
     }
 
+    public void onDisable() {
+        disablePlugin();
+    }
+
     // ABSTRACT METHODS
 
     public abstract void enablePlugin();
+    public abstract void disablePlugin();
     public abstract String getDebugPath();
 
     // INSTANCE ACCESSORS
