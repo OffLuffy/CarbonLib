@@ -26,7 +26,7 @@ public abstract class CarbonPlugin extends JavaPlugin {
             public void run() {
                 try {
                     saveDefaultConfig();
-                    log = new Log(inst, "enable-debug-messages");
+                    log = new Log(inst, getDebugPath());
                     CarbonException.setGlobalPluginScope(inst, "net.teamcarbon");
 
                     enablePlugin();
@@ -46,6 +46,7 @@ public abstract class CarbonPlugin extends JavaPlugin {
     // ABSTRACT METHODS
 
     public abstract void enablePlugin();
+    public abstract String getDebugPath();
 
     // INSTANCE ACCESSORS
 
