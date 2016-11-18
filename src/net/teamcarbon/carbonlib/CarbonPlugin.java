@@ -38,7 +38,6 @@ public abstract class CarbonPlugin extends JavaPlugin {
                     (new CarbonException(inst, e)).printStackTrace();
                     log.severe("=====================================");
                 }
-                enablePlugin();
             }
         }, 1L);
 
