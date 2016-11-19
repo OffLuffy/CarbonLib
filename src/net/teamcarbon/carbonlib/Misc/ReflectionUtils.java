@@ -7,6 +7,7 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.teamcarbon.carbonlib.CarbonLib;
 import org.bukkit.Bukkit;
 
 /**
@@ -29,6 +30,28 @@ import org.bukkit.Bukkit;
 public class ReflectionUtils {
 	// Prevent accidental construction
 	private ReflectionUtils() {}
+
+	public static void setInstanceField(Class<?> klass, Object instance, String setMethodName, Object value) {
+		setInstanceField(klass, instance, setMethodName, value.getClass(), value);
+	}
+
+	public static void setInstanceField(Class<?> klass, Object instance, String setMethodName, Class<?> propertyClass, Object value) {
+		try {
+			Method setMethod = null;
+			try {
+				setMethod = klass.getDeclaredMethod(setMethodName, propertyClass);
+			} catch(NoSuchMethodException nsme) {
+				if(klass.getSuperclass() != null && klass.getSuperclass() != klass) {
+					setInstanceField(klass.getSuperclass(), instance, setMethodName, value);
+				} else {
+					CarbonLib.log.warn( "No method found with name: " + nsme.getMessage() );
+				}
+			}
+			if(setMethod != null) setMethod.invoke(instance, value);
+		} catch(Exception e) {
+			CarbonLib.log.severe("Failed to assign value to instance member variable");
+		}
+	}
 
 	/**
 	 * Returns the constructor of a given class with the given parameter types

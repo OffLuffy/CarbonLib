@@ -701,7 +701,7 @@ public final class MiscUtils {
 	}
 
 	private static String sformat(String pat, Object ... objects) { return String.format(Locale.ENGLISH, pat, objects); }
-	private static String ticksToTime(long ticks) {
+	public static String ticksToTime(long ticks) {
 		ticks += 6000; // Offset 0 ticks to = 6AM
 		int hours = (int)(ticks / 1000), minutes = (int)((ticks % 1000) / 16.66);
 		return (hours > 12 ? hours > 24 ? hours - 24 : hours-12 : hours) + ":"
