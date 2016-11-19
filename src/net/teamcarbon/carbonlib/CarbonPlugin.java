@@ -34,7 +34,7 @@ public abstract class CarbonPlugin extends JavaPlugin {
                     CarbonLib.notifyHook(inst);
 
                 } catch (Exception e) {
-                    log.severe("===[ An exception occurred while trying to enable " + getDescription().getName() + " ]===");
+                    log.severe("===[ An exception occurred while trying to enable " + namever() + " ]===");
                     (new CarbonException(inst, e)).printStackTrace();
                     log.severe("=====================================");
                 }

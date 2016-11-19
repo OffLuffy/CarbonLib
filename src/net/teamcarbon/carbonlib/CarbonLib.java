@@ -42,7 +42,7 @@ public class CarbonLib extends JavaPlugin {
 	}
 
 	public static void notifyHook(String pluginName) { log.info("Hooked to plugin: " + pluginName); }
-	public static void notifyHook(JavaPlugin plugin) { notifyHook(plugin.getName()); }
+	public static void notifyHook(CarbonPlugin plugin) { notifyHook(plugin.namever()); }
 	public static void addPlugin(CarbonPlugin plugin) {
 		if (!carbonPlugins.contains(plugin)) carbonPlugins.add(plugin);
 	}
@@ -54,6 +54,8 @@ public class CarbonLib extends JavaPlugin {
 	private static boolean setupPerm() {
 		RegisteredServiceProvider<Permission> pp = Bukkit.getServicesManager().getRegistration(Permission.class);
 		if (pp != null) perm = pp.getProvider();
+		else { log.warn("Bukkit.getServicesManager().getRegistration(Permission.class) is null"); }
+		if (perm == null) { log.warn("Bukkit.getServicesManager().getRegistration(Permission.class).getProvider() is null"); }
 		MiscUtils.setPerms(perm);
 		return perm != null;
 	}
