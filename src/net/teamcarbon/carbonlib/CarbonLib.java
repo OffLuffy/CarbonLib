@@ -30,6 +30,9 @@ public class CarbonLib extends JavaPlugin {
 		inst = this;
 		CarbonException.setGlobalPluginScope(this, "net.teamcarbon");
 		log = new Log(this, "enable-debug-messages");
+		CarbonLib.setupPerm();
+		CarbonLib.setupEcon();
+		CarbonLib.setupChat();
 
 		Bukkit.getScheduler().runTaskLater(this, new Runnable() {
 			@Override
@@ -47,27 +50,28 @@ public class CarbonLib extends JavaPlugin {
 		if (!carbonPlugins.contains(plugin)) carbonPlugins.add(plugin);
 	}
 
-	public static Permission fetchPerm() { return perm == null ? (setupPerm() ? perm : null) : perm; }
-	public static Economy fetchEcon() { return econ == null ? (setupEcon() ? econ : null) : econ; }
-	public static Chat fetchChat() { return chat == null ? (setupChat() ? chat : null) : chat; }
+	public static Permission fetchPerm() { return setupPerm(); }
+	public static Economy fetchEcon() { return setupEcon(); }
+	public static Chat fetchChat() { return setupChat(); }
 
-	private static boolean setupPerm() {
+	private static Permission setupPerm() {
+		if (perm != null) return perm;
 		RegisteredServiceProvider<Permission> pp = Bukkit.getServicesManager().getRegistration(Permission.class);
 		if (pp != null) perm = pp.getProvider();
-		else { log.warn("Bukkit.getServicesManager().getRegistration(Permission.class) is null"); }
-		if (perm == null) { log.warn("Bukkit.getServicesManager().getRegistration(Permission.class).getProvider() is null"); }
 		MiscUtils.setPerms(perm);
-		return perm != null;
+		return perm;
 	}
-	private static boolean setupEcon() {
+	private static Economy setupEcon() {
+		if (econ != null) return econ;
 		RegisteredServiceProvider<Economy> ep = Bukkit.getServicesManager().getRegistration(Economy.class);
 		if (ep != null) econ = ep.getProvider();
-		return econ != null;
+		return econ;
 	}
-	private static boolean setupChat() {
+	private static Chat setupChat() {
+		if (chat != null) return chat;
 		RegisteredServiceProvider<Chat> cp = Bukkit.getServicesManager().getRegistration(Chat.class);
 		if (cp != null) chat = cp.getProvider();
-		return chat != null;
+		return chat;
 	}
 
 	public static List<CarbonPlugin> getCarbonPlugins() { return new ArrayList<>(carbonPlugins); }
